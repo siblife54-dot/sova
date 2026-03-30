@@ -9,7 +9,7 @@ window.APP_CONFIG = {
   cardColor: "#12243a",
 
   // Курс
-  courseId: "course_sova,
+  courseId: "course_sova",
 
   // Публичный CSV URL из Google Sheets
   googleSheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS9-CZbaqUwGjDG9zY2eRzaW5jKUrkeW7JBklA1E-CH3lwiTQ2g6BIsDCALmVOvV8AhTEqoTNwmkb4t/export?format=csv",
