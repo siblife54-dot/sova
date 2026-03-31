@@ -740,9 +740,10 @@ a { color: inherit; }
 
 .branch-card-link {
   text-decoration: none;
-  display: flex;
-  flex-direction: column;
+  display: block;
   height: 100%;
+  position: relative;
+  isolation: isolate;
 }
 
 .branch-card.locked {
@@ -754,9 +755,8 @@ a { color: inherit; }
 }
 
 .branch-card-image {
-  height: 52%;
-  min-height: 70px;
-  position: relative;
+  position: absolute;
+  inset: 0;
   background: radial-gradient(120% 100% at 0% 0%, color-mix(in srgb, var(--branch-color, var(--accent)) 28%, transparent), transparent 65%);
 }
 
@@ -764,18 +764,25 @@ a { color: inherit; }
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.38));
+  background: linear-gradient(180deg, rgba(0,0,0,0.04) 35%, rgba(0,0,0,0.42) 100%);
+  z-index: 1;
 }
 
 .branch-card-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .branch-card-body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
   padding: 7px;
-  background: rgba(6, 14, 26, 0.82);
+  background: linear-gradient(180deg, rgba(6, 14, 26, 0) 0%, rgba(6, 14, 26, 0.68) 36%, rgba(6, 14, 26, 0.82) 100%);
 }
 
 .branch-card-body h3 {
@@ -789,7 +796,6 @@ a { color: inherit; }
   font-size: 10px;
   color: var(--muted);
   line-height: 1.2;
-  min-height: 24px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
