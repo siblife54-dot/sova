@@ -9,6 +9,12 @@
     guilt: "#ffd447",
     aggression: "#ff4f5f"
   };
+  var BRANCH_TITLES = {
+    fear: "Страх",
+    resentment: "Обида",
+    guilt: "Вина",
+    aggression: "Агрессия"
+  };
 
   function getConfig() {
     return window.APP_CONFIG || {};
@@ -209,7 +215,7 @@
 
       return {
         branch_id: branchId,
-        branch_title: branch ? branch.meta.branch_title : branchId,
+        branch_title: branch ? (String(branch.meta.branch_title || "").trim() || branchId) : branchId,
         branch_subtitle: branch ? branch.meta.branch_subtitle : "",
         branch_image_url: branch ? normalizePreviewImageUrl(branch.meta.branch_image_url) : "",
         modules: modules,
@@ -218,10 +224,69 @@
     });
   }
 
+  function getTelegramUser() {
+    var tg = globalThis.Telegram && globalThis.Telegram.WebApp;
+    if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user) return null;
+    return tg.initDataUnsafe.user;
+  }
+
+  function getUserInitials(firstName, lastName) {
+    var first = String(firstName || "").trim();
+    var last = String(lastName || "").trim();
+    var initials = (first.charAt(0) || "") + (last.charAt(0) || "");
+    return initials.toUpperCase() || "U";
+  }
+
+  function renderUserCard() {
+    var container = document.getElementById("userCard");
+    if (!container) return;
+
+    var user = getTelegramUser() || {};
+    var firstName = String(user.first_name || "").trim();
+    var lastName = String(user.last_name || "").trim();
+    var fullName = [firstName, lastName].filter(Boolean).join(" ") || "Пользователь";
+    var initials = getUserInitials(firstName, lastName);
+    var photoUrl = String(user.photo_url || "").trim();
+
+    container.innerHTML = [
+      '<div class="user-avatar-wrap">',
+      (photoUrl
+        ? '<img class="user-avatar-img" src="' + escapeAttr(photoUrl) + '" alt="' + escapeAttr(fullName) + '" loading="lazy">'
+        : '<div class="user-avatar-fallback">' + escapeHtml(initials) + '</div>'),
+      '</div>',
+      '<div class="user-meta">',
+      '<h1>' + escapeHtml(fullName) + '</h1>',
+      '<p>Доступ к программе открыт</p>',
+      '</div>'
+    ].join("");
+  }
+
+  function renderDashboardProgress(cards) {
+    var container = document.getElementById("dashboardProgress");
+    if (!container) return;
+
+    var total = BRANCH_ORDER.length;
+    var done = cards.filter(function (card) {
+      return card.status === "completed";
+    }).length;
+    var pct = total ? Math.round((done / total) * 100) : 0;
+
+    container.innerHTML = [
+      '<div class="dashboard-progress-head">',
+      '<h2>Ваш прогресс</h2>',
+      '<span class="dashboard-progress-pct">' + pct + '%</span>',
+      '</div>',
+      '<p>Пройдено: ' + done + ' из ' + total + '</p>',
+      '<div class="dashboard-progress-bar"><div class="dashboard-progress-fill" style="width:' + pct + '%"></div></div>'
+    ].join("");
+  }
+
   function renderDashboard(branches, progress) {
     var container = document.getElementById("branchesContainer");
     var stateBox = document.getElementById("stateBox");
     var cards = getBranchCardsData(branches, progress);
+    renderUserCard();
+    renderDashboardProgress(cards);
 
     if (!cards.some(function (card) { return card.modules.length; })) {
       container.innerHTML = "";
@@ -245,7 +310,7 @@
         (card.branch_image_url ? '<img src="' + escapeAttr(card.branch_image_url) + '" alt="' + escapeAttr(card.branch_title) + '" loading="lazy">' : ""),
         '</div>',
         '<div class="branch-card-body">',
-        '<h3>' + escapeHtml(card.branch_title) + '</h3>',
+        '<h3>' + escapeHtml(String(card.branch_title || "").trim() || BRANCH_TITLES[card.branch_id] || card.branch_id) + '</h3>',
         '<p>' + escapeHtml(card.branch_subtitle || "") + '</p>',
         '<div class="branch-card-status">',
         (completed ? '<span class="status done">Пройдено ✓</span>' : ""),
