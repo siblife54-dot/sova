@@ -7,13 +7,13 @@
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body class="lesson-page" data-page="lesson">
-  <a href="./index.html" class="top-back">← Назад в кабинет</a>
+  <a href="./index.html" class="top-back" id="lessonBackLink">← Назад</a>
   <div class="header-brand" id="brandName">Бренд</div>
 
   <div id="lessonState" class="state skeleton">Загрузка урока...</div>
 
   <main id="lessonMain" hidden>
-    <p id="lessonDay" class="badge">День</p>
+    <p id="lessonDay" class="badge">Модуль</p>
     <h1 id="lessonTitle">Название урока</h1>
     <p id="lessonSubtitle" class="lesson-subtitle"></p>
 
@@ -36,7 +36,7 @@
 
     <div class="row-actions" style="margin-top: 16px;">
       <button id="completeBtn" class="btn btn-primary" type="button">Отметить как пройдено</button>
-      <a href="./index.html" class="btn" style="text-decoration:none;display:inline-flex;align-items:center;">Назад в кабинет</a>
+      <a href="./index.html" class="btn" id="lessonCabinetLink" style="text-decoration:none;display:inline-flex;align-items:center;">К эмоциям</a>
     </div>
   </main>
 

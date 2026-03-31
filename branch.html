@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Эмоция</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body data-page="branch" class="branch-page">
+  <a href="./index.html" class="top-back">← Назад к эмоциям</a>
+  <div class="header-brand" id="brandName">Бренд</div>
+
+  <div id="branchState" class="state skeleton">Загрузка эмоции...</div>
+
+  <main id="branchMain" hidden>
+    <section class="branch-hero card" id="branchHero"></section>
+
+    <section class="card progress-wrap branch-progress-wrap">
+      <div class="progress-top">
+        <span id="branchProgressText">Пройдено: 0 из 0</span>
+        <strong id="branchProgressPct">0%</strong>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="branchProgressFill"></div>
+      </div>
+    </section>
+
+    <h2 class="section-title">Модули</h2>
+    <section id="modulesContainer" class="modules-list" aria-live="polite"></section>
+  </main>
+
+  <script src="./config.js"></script>
+  <script src="./csv.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

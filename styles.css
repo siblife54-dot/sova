@@ -615,3 +615,143 @@ a { color: inherit; }
   box-shadow: none !important;
   background: transparent !important;
 }
+
+/* ===== SOVA branches ===== */
+.dashboard-page {
+  height: 100vh;
+  overflow: hidden;
+  padding-bottom: 14px;
+}
+
+.branches-grid {
+  height: calc(100vh - 52px - env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 10px;
+}
+
+.branch-card {
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--branch-color, var(--accent)) 40%, var(--border));
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+  min-height: 0;
+}
+
+.branch-card-link {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.branch-card.locked {
+  opacity: 0.62;
+}
+
+.branch-card.locked .branch-card-link {
+  pointer-events: none;
+}
+
+.branch-card-image {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  background: radial-gradient(120% 100% at 0% 0%, color-mix(in srgb, var(--branch-color, var(--accent)) 28%, transparent), transparent 65%);
+}
+
+.branch-card-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.38));
+}
+
+.branch-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.branch-card-body {
+  padding: 8px;
+  background: rgba(6, 14, 26, 0.82);
+}
+
+.branch-card-body h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.branch-card-body p {
+  margin: 2px 0 8px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.25;
+}
+
+.branch-card-status {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.status.open {
+  background: color-mix(in srgb, var(--branch-color, var(--accent)) 24%, transparent);
+  color: #f3f7ff;
+}
+
+.branch-page .progress-fill,
+.module-card .btn,
+.module-card {
+  --accent: var(--branch-color, var(--accent));
+}
+
+.branch-hero {
+  padding: 10px;
+  margin-bottom: 14px;
+}
+
+.branch-hero-image {
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  border: 1px solid color-mix(in srgb, var(--branch-color, var(--accent)) 45%, transparent);
+}
+
+.branch-hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.branch-hero-body h1 {
+  margin: 0 0 4px;
+  font-size: 22px;
+}
+
+.branch-hero-body p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.modules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.module-card {
+  border-color: color-mix(in srgb, var(--branch-color, var(--accent)) 30%, var(--border));
+}
+
+.module-card .btn {
+  border-color: color-mix(in srgb, var(--branch-color, var(--accent)) 45%, transparent);
+  background: color-mix(in srgb, var(--branch-color, var(--accent)) 24%, transparent);
+}
+
+.branch-progress-wrap {
+  margin-bottom: 8px;
+}

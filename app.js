@@ -1,10 +1,14 @@
 (function () {
   "use strict";
 
-  var STORAGE_KEY = "course_completed_lessons_v1";
-  var LEGACY_STORAGE_KEY = "completedLessons";
-  var DEBUG_IMG_STATUS = {};
-  var DEBUG_LAST_CONTEXT = null;
+  var PROGRESS_STORAGE_KEY = "course_branch_progress_v1";
+  var BRANCH_ORDER = ["fear", "resentment", "guilt", "aggression"];
+  var BRANCH_COLORS = {
+    fear: "#36c66b",
+    resentment: "#3a7dff",
+    guilt: "#ffd447",
+    aggression: "#ff4f5f"
+  };
 
   function getConfig() {
     return window.APP_CONFIG || {};
@@ -20,11 +24,6 @@
     if (brand) brand.textContent = config.brandName || "Кабинет курса";
   }
 
-  function getTelegramUser() {
-    var user = globalThis.Telegram?.WebApp?.initDataUnsafe?.user;
-    return user || null;
-  }
-
   function initTelegramViewport() {
     var tg = globalThis.Telegram && globalThis.Telegram.WebApp;
     if (!tg) return;
@@ -33,70 +32,94 @@
     if (typeof tg.expand === "function") tg.expand();
   }
 
-  function getUserName(user) {
-    if (!user) return "Студент";
-    var full = [user.first_name, user.last_name].filter(Boolean).join(" ").trim();
-    return full || user.username || "Студент";
-  }
-
-  function getInitials(name) {
-    var clean = (name || "Студент").trim();
-    var words = clean.split(/\s+/).filter(Boolean);
-    if (!words.length) return "СТ";
-    if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
-    return (words[0][0] + words[1][0]).toUpperCase();
-  }
-
-  function parseCompletedRaw(raw) {
-    if (!raw) return [];
+  function loadProgress() {
     try {
+      var raw = localStorage.getItem(PROGRESS_STORAGE_KEY);
+      if (!raw) {
+        return { completedModules: {}, completedBranches: {} };
+      }
+
       var parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
+      return {
+        completedModules: parsed && parsed.completedModules ? parsed.completedModules : {},
+        completedBranches: parsed && parsed.completedBranches ? parsed.completedBranches : {}
+      };
     } catch (e) {
-      return [];
+      return { completedModules: {}, completedBranches: {} };
     }
   }
 
-  function loadCompleted() {
-    var rawPrimary = localStorage.getItem(STORAGE_KEY);
-    var primary = parseCompletedRaw(rawPrimary);
-    if (primary.length) return primary;
+  function saveProgress(progress) {
+    var safe = {
+      completedModules: progress && progress.completedModules ? progress.completedModules : {},
+      completedBranches: progress && progress.completedBranches ? progress.completedBranches : {}
+    };
 
-    var rawLegacy = localStorage.getItem(LEGACY_STORAGE_KEY);
-    return parseCompletedRaw(rawLegacy);
+    localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(safe));
   }
 
-  function saveCompleted(ids) {
-    var clean = Array.from(new Set(ids));
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
-    localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(clean));
+  function getModuleProgressKey(branchId, moduleId) {
+    return branchId + "_" + moduleId;
   }
 
-  function markCompleted(id) {
-    var completed = loadCompleted();
-    if (!completed.includes(id)) {
-      completed.push(id);
-      saveCompleted(completed);
-    }
+  function isBranchCompleted(branchId, modules, progress) {
+    if (!modules || !modules.length) return false;
+
+    return modules.every(function (module) {
+      var key = getModuleProgressKey(branchId, module.module_id);
+      return Boolean(progress.completedModules[key]);
+    });
   }
 
-  function normalizeLesson(raw) {
+  function isBranchUnlocked(branchId, progress) {
+    if (branchId === "fear") return true;
+
+    var index = BRANCH_ORDER.indexOf(branchId);
+    if (index <= 0) return false;
+
+    var previousBranchId = BRANCH_ORDER[index - 1];
+    return Boolean(progress.completedBranches[previousBranchId]);
+  }
+
+  function isModuleUnlocked(branchId, moduleId, modules, progress) {
+    if (!modules || !modules.length) return false;
+
+    if (!isBranchUnlocked(branchId, progress)) return false;
+
+    var index = modules.findIndex(function (module) {
+      return module.module_id === moduleId;
+    });
+
+    if (index < 0) return false;
+    if (index === 0) return true;
+
+    var previousModule = modules[index - 1];
+    var previousKey = getModuleProgressKey(branchId, previousModule.module_id);
+    return Boolean(progress.completedModules[previousKey]);
+  }
+
+  function normalizeModule(raw) {
     return {
       course_id: raw.course_id,
-      lesson_id: raw.lesson_id,
-      day_number: Number(raw.day_number || 0),
+      branch_id: (raw.branch_id || "").trim(),
+      branch_title: raw.branch_title || "",
+      branch_order: Number(raw.branch_order || 0),
+      branch_image_url: raw.branch_image_url || "",
+      branch_subtitle: raw.branch_subtitle || "",
+      module_id: String(raw.module_id || raw.lesson_id || "").trim(),
+      module_order: Number(raw.module_order || raw.day_number || 0),
       title: raw.title || "Без названия",
       subtitle: raw.subtitle || "",
-      preview_image_url: raw.preview_image_url || "",
-      preview_image_: raw.preview_image_ || "",
+      preview_image_url: raw.preview_image_url || raw.preview_image_ || "",
       video_url: raw.video_url || "",
       content_html: raw.content_html || "",
       content_text: raw.content_text || "",
-      attachments: raw.attachments || ""
+      attachments: raw.attachments || "",
+      is_locked: String(raw.is_locked || "0")
     };
   }
 
-  async function fetchLessons(config) {
+  async function fetchModules(config) {
     var url = config.useSampleData ? (config.sampleCsvPath || "./sample-sheet.csv") : config.googleSheetCsvUrl;
     if (!url) throw new Error("Не указан CSV URL. Проверьте config.js");
 
@@ -109,247 +132,208 @@
     var rows = window.CSVUtils.parseCSV(text);
 
     return rows
-      .map(normalizeLesson)
-      .filter(function (r) {
-        return r.course_id === config.courseId;
+      .map(normalizeModule)
+      .filter(function (module) {
+        return module.course_id === config.courseId;
       })
-      .sort(function (a, b) {
-        return a.day_number - b.day_number;
+      .filter(function (module) {
+        return Boolean(module.branch_id) && Boolean(module.module_id);
       });
   }
 
-  function getMaxCompletedDayNumber(lessons, completed) {
-    var maxDay = 0;
-    lessons.forEach(function (lesson) {
-      if (completed.includes(lesson.lesson_id) && lesson.day_number > maxDay) {
-        maxDay = lesson.day_number;
-      }
-    });
-    return maxDay;
-  }
-
-  function getAccessibilityModel(lessons, completed) {
-    var maxCompletedDayNumber = getMaxCompletedDayNumber(lessons, completed);
-    var threshold = maxCompletedDayNumber + 1;
+  function groupByBranches(modules) {
     var map = {};
 
-    lessons.forEach(function (lesson) {
-      var isSequentiallyOpen = lesson.day_number <= threshold;
-      map[lesson.lesson_id] = isSequentiallyOpen;
+    modules.forEach(function (module) {
+      var branchId = module.branch_id;
+      if (!map[branchId]) {
+        map[branchId] = {
+          meta: {
+            branch_id: branchId,
+            branch_title: module.branch_title || branchId,
+            branch_order: Number(module.branch_order || 0),
+            branch_image_url: module.branch_image_url || "",
+            branch_subtitle: module.branch_subtitle || ""
+          },
+          modules: []
+        };
+      }
+      map[branchId].modules.push(module);
     });
 
-    return {
-      maxCompletedDayNumber: maxCompletedDayNumber,
-      threshold: threshold,
-      map: map
-    };
+    Object.keys(map).forEach(function (branchId) {
+      map[branchId].modules.sort(function (a, b) {
+        return a.module_order - b.module_order;
+      });
+    });
+
+    return map;
   }
 
-  function isDebugMode() {
-    var params = new URLSearchParams(window.location.search);
-    return params.get("debug") === "1";
-  }
-
-  function extractGoogleDriveFileId(url) {
-    var value = String(url || "").trim();
-    if (!value) return null;
-
-    var byFilePath = value.match(/drive\.google\.com\/file\/d\/([^/]+)/i);
-    if (byFilePath && byFilePath[1]) return byFilePath[1];
-
-    var byGoogleusercontent = value.match(/googleusercontent\.com\/.*?\/d\/([^/]+)/i);
-    if (byGoogleusercontent && byGoogleusercontent[1]) return byGoogleusercontent[1];
-
-    try {
-      var parsed = new URL(value);
-      var idFromParam = parsed.searchParams.get("id");
-      if (idFromParam) return idFromParam;
-    } catch (e) {
-      return null;
-    }
-
-    return null;
+  function getBranchThemeColor(branchId) {
+    return BRANCH_COLORS[branchId] || "#8B5CF6";
   }
 
   function normalizePreviewImageUrl(url) {
     var value = String(url || "").trim();
     if (!value) return "";
 
-    var driveId = extractGoogleDriveFileId(value);
-    if (driveId) {
-      return "https://drive.google.com/thumbnail?id=" + driveId + "&sz=w1200";
+    var byFilePath = value.match(/drive\.google\.com\/file\/d\/([^/]+)/i);
+    if (byFilePath && byFilePath[1]) {
+      return "https://drive.google.com/thumbnail?id=" + byFilePath[1] + "&sz=w1200";
+    }
+
+    try {
+      var parsed = new URL(value);
+      var id = parsed.searchParams.get("id");
+      if (/drive\.google\.com/i.test(parsed.host) && id) {
+        return "https://drive.google.com/thumbnail?id=" + id + "&sz=w1200";
+      }
+    } catch (e) {
+      return value;
     }
 
     return value;
   }
 
-  function getPreviewSrc(lesson) {
-    var raw = String(lesson.preview_image_url || lesson.preview_image_ || "").trim();
-    if (!raw) return "";
-    return normalizePreviewImageUrl(raw);
-  }
+  function getBranchCardsData(branches, progress) {
+    return BRANCH_ORDER.map(function (branchId) {
+      var branch = branches[branchId] || null;
+      var modules = branch ? branch.modules : [];
+      var completed = branch ? isBranchCompleted(branchId, modules, progress) : false;
+      var unlocked = isBranchUnlocked(branchId, progress);
 
-  function renderDebugPanel(config, lessons, completed, model) {
-    if (!isDebugMode()) return;
+      if (completed) {
+        progress.completedBranches[branchId] = true;
+      }
 
-    DEBUG_LAST_CONTEXT = {
-      config: config,
-      lessons: lessons,
-      completed: completed,
-      model: model
-    };
-
-    var existing = document.getElementById("debugPanel");
-    if (existing) existing.remove();
-
-    var panel = document.createElement("aside");
-    panel.id = "debugPanel";
-    panel.className = "debug-panel";
-
-    var rawStorage = localStorage.getItem(STORAGE_KEY);
-    var rawLegacy = localStorage.getItem(LEGACY_STORAGE_KEY);
-
-    var lines = [
-      "DEBUG MODE",
-      "courseId: " + (config.courseId || "(пусто)"),
-      "total lessons loaded: " + lessons.length,
-      "localStorage." + STORAGE_KEY + ": " + String(rawStorage),
-      "localStorage.completedLessons raw value: " + String(rawLegacy),
-      "parsed completedLessons array: " + JSON.stringify(completed),
-      "maxCompletedDayNumber: " + model.maxCompletedDayNumber,
-      "unlockThreshold: " + model.threshold,
-      ""
-    ];
-
-    lessons.forEach(function (lesson) {
-      var normalizedPreview = getPreviewSrc(lesson);
-      var imgStatus = DEBUG_IMG_STATUS[lesson.lesson_id] || "PENDING";
-
-      lines.push(
-        [
-          "lesson_id=" + lesson.lesson_id,
-          "day_number=" + lesson.day_number,
-          "accessible=" + Boolean(model.map[lesson.lesson_id])
-        ].join(" | ")
-      );
-      lines.push("preview_image_url(raw): " + String(lesson.preview_image_url || ""));
-      lines.push("preview_image_(raw): " + String(lesson.preview_image_ || ""));
-      lines.push("preview_image(normalized): " + String(normalizedPreview));
-      lines.push("video_url(raw): " + String(lesson.video_url || ""));
-      lines.push("img: " + imgStatus);
-      lines.push("");
+      return {
+        branch_id: branchId,
+        branch_title: branch ? branch.meta.branch_title : branchId,
+        branch_subtitle: branch ? branch.meta.branch_subtitle : "",
+        branch_image_url: branch ? normalizePreviewImageUrl(branch.meta.branch_image_url) : "",
+        modules: modules,
+        status: completed ? "completed" : (unlocked ? "unlocked" : "locked")
+      };
     });
-
-    panel.textContent = lines.join("\n");
-    document.body.appendChild(panel);
   }
 
-  function refreshDebugPanel() {
-    if (!DEBUG_LAST_CONTEXT || !isDebugMode()) return;
-    renderDebugPanel(
-      DEBUG_LAST_CONTEXT.config,
-      DEBUG_LAST_CONTEXT.lessons,
-      DEBUG_LAST_CONTEXT.completed,
-      DEBUG_LAST_CONTEXT.model
-    );
-  }
-
-  function renderDashboard(lessons, config) {
-    var user = getTelegramUser();
-    var name = getUserName(user);
-    var avatar = document.getElementById("avatar");
-    var studentName = document.getElementById("studentName");
-    var list = document.getElementById("lessonsContainer");
+  function renderDashboard(branches, progress) {
+    var container = document.getElementById("branchesContainer");
     var stateBox = document.getElementById("stateBox");
+    var cards = getBranchCardsData(branches, progress);
 
-    studentName.textContent = name;
-    avatar.textContent = getInitials(name);
-
-    var completed = loadCompleted();
-    var accessModel = getAccessibilityModel(lessons, completed);
-
-    renderDebugPanel(config, lessons, completed, accessModel);
-
-    if (!lessons.length) {
-      list.innerHTML = "";
+    if (!cards.some(function (card) { return card.modules.length; })) {
+      container.innerHTML = "";
       stateBox.hidden = false;
-      stateBox.textContent = "Нет доступных уроков";
-      renderProgress(lessons);
+      stateBox.classList.remove("skeleton");
+      stateBox.textContent = "Нет модулей для отображения.";
       return;
     }
 
     stateBox.hidden = true;
-
-    list.innerHTML = lessons.map(function (lesson) {
-      var done = completed.includes(lesson.lesson_id);
-      var accessible = Boolean(accessModel.map[lesson.lesson_id]);
-      var locked = !accessible;
+    container.innerHTML = cards.map(function (card) {
+      var color = getBranchThemeColor(card.branch_id);
+      var locked = card.status === "locked";
+      var completed = card.status === "completed";
+      var href = "./branch.html?branch_id=" + encodeURIComponent(card.branch_id);
 
       return [
-        '<article class="lesson-card' + (locked ? ' locked' : '') + '">',
-        '<div class="lesson-preview">',
-        (getPreviewSrc(lesson) ? '<img src="' + escapeAttr(getPreviewSrc(lesson)) + '" alt="Превью урока" loading="lazy" data-lesson-id="' + escapeAttr(lesson.lesson_id) + '">' : ''),
+        '<article class="branch-card ' + (locked ? "locked" : "") + '" style="--branch-color:' + escapeAttr(color) + ';">',
+        '<a class="branch-card-link"' + (locked ? "" : ' href="' + href + '"') + '>',
+        '<div class="branch-card-image">',
+        (card.branch_image_url ? '<img src="' + escapeAttr(card.branch_image_url) + '" alt="' + escapeAttr(card.branch_title) + '" loading="lazy">' : ""),
         '</div>',
+        '<div class="branch-card-body">',
+        '<h3>' + escapeHtml(card.branch_title) + '</h3>',
+        '<p>' + escapeHtml(card.branch_subtitle || "") + '</p>',
+        '<div class="branch-card-status">',
+        (completed ? '<span class="status done">Пройдено ✓</span>' : ""),
+        (!completed && locked ? '<span class="status locked">🔒 Закрыта</span>' : ""),
+        (!completed && !locked ? '<span class="status open">Доступна</span>' : ""),
+        '</div>',
+        '</div>',
+        '</a>',
+        '</article>'
+      ].join("");
+    }).join("");
+  }
+
+  function renderBranchPage(branchId, branches, progress) {
+    var stateBox = document.getElementById("branchState");
+    var main = document.getElementById("branchMain");
+    var hero = document.getElementById("branchHero");
+    var modulesContainer = document.getElementById("modulesContainer");
+
+    if (!branchId || !branches[branchId]) {
+      stateBox.classList.remove("skeleton");
+      stateBox.textContent = "Эмоция не найдена.";
+      return;
+    }
+
+    if (!isBranchUnlocked(branchId, progress)) {
+      stateBox.classList.remove("skeleton");
+      stateBox.textContent = "Эта эмоция пока закрыта.";
+      return;
+    }
+
+    var branch = branches[branchId];
+    var modules = branch.modules;
+    var color = getBranchThemeColor(branchId);
+
+    stateBox.hidden = true;
+    main.hidden = false;
+
+    hero.style.setProperty("--branch-color", color);
+    hero.innerHTML = [
+      '<div class="branch-hero-image">',
+      (branch.meta.branch_image_url ? '<img src="' + escapeAttr(normalizePreviewImageUrl(branch.meta.branch_image_url)) + '" alt="' + escapeAttr(branch.meta.branch_title) + '">' : ""),
+      '</div>',
+      '<div class="branch-hero-body">',
+      '<h1>' + escapeHtml(branch.meta.branch_title) + '</h1>',
+      '<p>' + escapeHtml(branch.meta.branch_subtitle || "") + '</p>',
+      '</div>'
+    ].join("");
+
+    var completedCount = modules.filter(function (module) {
+      var key = getModuleProgressKey(branchId, module.module_id);
+      return Boolean(progress.completedModules[key]);
+    }).length;
+
+    var pct = modules.length ? Math.round((completedCount / modules.length) * 100) : 0;
+    document.getElementById("branchProgressText").textContent = "Пройдено: " + completedCount + " из " + modules.length;
+    document.getElementById("branchProgressPct").textContent = pct + "%";
+    var fill = document.getElementById("branchProgressFill");
+    fill.style.width = pct + "%";
+    fill.style.background = color;
+
+    modulesContainer.innerHTML = modules.map(function (module) {
+      var key = getModuleProgressKey(branchId, module.module_id);
+      var done = Boolean(progress.completedModules[key]);
+      var unlocked = isModuleUnlocked(branchId, module.module_id, modules, progress);
+      var locked = !unlocked;
+
+      return [
+        '<article class="lesson-card module-card' + (locked ? ' locked' : '') + '" style="--branch-color:' + escapeAttr(color) + ';">',
         '<div class="lesson-card-body">',
         '<div class="lesson-meta">',
-        '<span class="lesson-day">День ' + (lesson.day_number || "-") + '</span>',
+        '<span class="lesson-day">Модуль ' + (module.module_order || "-") + '</span>',
         '<div class="lesson-indicators">',
-        (done ? '<span class="status done">Пройдено</span>' : ''),
-        (locked ? '<span class="status locked">Закрыто</span>' : ''),
+        (done ? '<span class="status done">Пройдено</span>' : ""),
+        (locked ? '<span class="status locked">Закрыт</span>' : (!done ? '<span class="status open">Доступен</span>' : "")),
         '</div>',
         '</div>',
-        '<h3>' + escapeHtml(lesson.title) + '</h3>',
-        '<p>' + escapeHtml(lesson.subtitle || "Описание отсутствует") + '</p>',
+        '<h3>' + escapeHtml(module.title) + '</h3>',
+        '<p>' + escapeHtml(module.subtitle || "Описание отсутствует") + '</p>',
         '<div class="lesson-actions">',
         (locked
           ? '<button class="btn btn-open" type="button" disabled>Открыть</button>'
-          : '<a class="btn btn-open" href="./lesson.html?id=' + encodeURIComponent(lesson.lesson_id) + '">Открыть</a>'),
+          : '<a class="btn btn-open" href="./lesson.html?id=' + encodeURIComponent(module.module_id) + '">Открыть</a>'),
         '</div>',
         '</div>',
         '</article>'
       ].join("");
     }).join("");
-
-    if (isDebugMode()) {
-      var previewImages = list.querySelectorAll(".lesson-preview img[data-lesson-id]");
-      previewImages.forEach(function (img) {
-        var lessonId = img.getAttribute("data-lesson-id") || "";
-
-        img.addEventListener("load", function () {
-          DEBUG_IMG_STATUS[lessonId] = "OK";
-          console.log("[IMG OK] lesson_id=" + lessonId + " src=" + img.currentSrc);
-          refreshDebugPanel();
-        });
-
-        img.addEventListener("error", function () {
-          DEBUG_IMG_STATUS[lessonId] = "FAIL";
-          console.log("[IMG FAIL] lesson_id=" + lessonId + " src=" + img.currentSrc);
-          img.style.display = "none";
-          refreshDebugPanel();
-        });
-
-        if (img.complete && img.naturalWidth > 0) {
-          DEBUG_IMG_STATUS[lessonId] = "OK";
-        }
-      });
-      refreshDebugPanel();
-    }
-
-    renderProgress(lessons);
-  }
-
-  function renderProgress(lessons) {
-    var completed = loadCompleted();
-    var total = lessons.length;
-    var completedCount = lessons.filter(function (l) {
-      return completed.includes(l.lesson_id);
-    }).length;
-
-    var pct = total ? Math.round((completedCount / total) * 100) : 0;
-
-    document.getElementById("progressText").textContent = "Пройдено: " + completedCount + " из " + total;
-    document.getElementById("progressPct").textContent = pct + "%";
-    document.getElementById("progressFill").style.width = pct + "%";
   }
 
   function extractYouTubeId(url) {
@@ -414,9 +398,7 @@
 
   function getVideoRenderModel(url) {
     var normalized = normalizeMediaUrl(url, "video");
-    if (!normalized) {
-      return { mode: "none", url: "" };
-    }
+    if (!normalized) return { mode: "none", url: "" };
 
     if (isYandexUrl(normalized) && !isYandexEmbedUrl(normalized)) {
       return { mode: "link", url: normalized };
@@ -429,13 +411,11 @@
     return { mode: "none", url: "" };
   }
 
-  // ===== Attachments: parse + tags =====
   function parseAttachments(raw) {
     if (!raw) return [];
 
-    // Каждая строка = один материал
     var lines = String(raw)
-      .split(/\r?\n|;/g) // перенос строки или ;
+      .split(/\r?\n|;/g)
       .map(function (s) { return s.trim(); })
       .filter(Boolean);
 
@@ -451,7 +431,6 @@
         var aIsUrl = /^https?:\/\//i.test(a);
         var bIsUrl = /^https?:\/\//i.test(b);
 
-        // Поддержка: "URL | Название" и "Название | URL"
         if (aIsUrl && !bIsUrl) { url = a; name = b || name; }
         else if (bIsUrl && !aIsUrl) { url = b; name = a || name; }
         else { name = a || name; url = b || ""; }
@@ -460,11 +439,9 @@
       }
 
       url = normalizeMediaUrl(url, "file");
-
       return { name: name, url: url };
     });
 
-    // Убираем мусор: пустые или не ссылки
     return files.filter(function (f) {
       return /^https?:\/\//i.test(f.url);
     });
@@ -490,41 +467,61 @@
     if (ext === "JPG" || ext === "JPEG" || ext === "PNG" || ext === "WEBP") return "IMG";
     return ext;
   }
-  // ====================================
 
-  function renderLesson(lessons) {
+  function markModuleCompleted(branchId, moduleId, branchModules) {
+    var progress = loadProgress();
+    var key = getModuleProgressKey(branchId, moduleId);
+    progress.completedModules[key] = true;
+
+    if (isBranchCompleted(branchId, branchModules, progress)) {
+      progress.completedBranches[branchId] = true;
+    }
+
+    saveProgress(progress);
+    return progress;
+  }
+
+  function renderLesson(modules, branches) {
     var stateBox = document.getElementById("lessonState");
     var main = document.getElementById("lessonMain");
     var id = new URLSearchParams(window.location.search).get("id");
 
     if (!id) {
       stateBox.classList.remove("skeleton");
-      stateBox.textContent = "ID урока не найден. Откройте урок из списка.";
+      stateBox.textContent = "ID модуля не найден. Откройте урок из списка.";
       return;
     }
 
-    var lesson = lessons.find(function (l) {
-      return l.lesson_id === id;
+    var lesson = modules.find(function (module) {
+      return module.module_id === id;
     });
 
     if (!lesson) {
       stateBox.classList.remove("skeleton");
-      stateBox.textContent = "Урок не найден для выбранного курса.";
+      stateBox.textContent = "Модуль не найден для выбранного курса.";
       return;
     }
 
-    var completed = loadCompleted();
-    var accessModel = getAccessibilityModel(lessons, completed);
-    if (!accessModel.map[lesson.lesson_id]) {
+    var branch = branches[lesson.branch_id];
+    var branchModules = branch ? branch.modules : [];
+    var progress = loadProgress();
+
+    if (!isModuleUnlocked(lesson.branch_id, lesson.module_id, branchModules, progress)) {
       stateBox.classList.remove("skeleton");
-      stateBox.textContent = "Этот урок пока недоступен.";
+      stateBox.textContent = "Этот модуль пока недоступен.";
       return;
     }
+
+    var backUrl = "./branch.html?branch_id=" + encodeURIComponent(lesson.branch_id);
+    var topBackLink = document.getElementById("lessonBackLink");
+    var lessonCabinetLink = document.getElementById("lessonCabinetLink");
+    topBackLink.href = backUrl;
+    lessonCabinetLink.href = "./index.html";
 
     stateBox.hidden = true;
     main.hidden = false;
 
-    document.getElementById("lessonDay").textContent = "День " + (lesson.day_number || "-");
+    document.getElementById("lessonDay").textContent = "Модуль " + (lesson.module_order || "-");
     document.getElementById("lessonTitle").textContent = lesson.title;
     document.getElementById("lessonSubtitle").textContent = lesson.subtitle || "";
 
@@ -541,29 +538,26 @@
     var videoLinkCard = document.getElementById("videoLinkCard");
     var videoLinkButton = document.getElementById("videoLinkButton");
 
-  if (videoModel.mode === "embed") {
-  // Разрешения для fullscreen / PiP (особенно важно для iOS WebView)
-  frame.setAttribute("allow", "autoplay; encrypted-media; fullscreen; picture-in-picture");
-  frame.setAttribute("allowfullscreen", "true");
-  frame.setAttribute("playsinline", "true");
+    if (videoModel.mode === "embed") {
+      frame.setAttribute("allow", "autoplay; encrypted-media; fullscreen; picture-in-picture");
+      frame.setAttribute("allowfullscreen", "true");
+      frame.setAttribute("playsinline", "true");
 
-  frame.src = videoModel.url;
-  videoWrap.hidden = false;
+      frame.src = videoModel.url;
+      videoWrap.hidden = false;
+      videoLinkButton.href = videoModel.url;
+      videoLinkCard.hidden = false;
+    } else if (videoModel.mode === "link") {
+      videoWrap.hidden = true;
+      frame.removeAttribute("src");
+      videoLinkButton.href = videoModel.url;
+      videoLinkCard.hidden = false;
+    } else {
+      videoWrap.hidden = true;
+      videoLinkCard.hidden = true;
+      frame.removeAttribute("src");
+    }
 
-  // Дублируем ссылку “Открыть” как запасной вариант (полезно для iOS/Drive)
-  videoLinkButton.href = videoModel.url;
-  videoLinkCard.hidden = false;
-} else if (videoModel.mode === "link") {
-  videoLinkButton.href = videoModel.url;
-  videoLinkCard.hidden = false;
-} else {
-  // Ничего не показываем
-  videoWrap.hidden = true;
-  videoLinkCard.hidden = true;
-  frame.removeAttribute("src");
-}
-
-    // ===== Materials rendering (fixed) =====
     var attachmentsWrap = document.getElementById("attachmentsWrap");
     var attachmentsList = document.getElementById("attachmentsList");
     var files = parseAttachments(lesson.attachments);
@@ -585,20 +579,21 @@
       attachmentsWrap.hidden = true;
       attachmentsList.innerHTML = "";
     }
-    // ======================================
 
     var completeBtn = document.getElementById("completeBtn");
-    if (completed.includes(lesson.lesson_id)) {
+    var moduleKey = getModuleProgressKey(lesson.branch_id, lesson.module_id);
+
+    if (progress.completedModules[moduleKey]) {
       completeBtn.textContent = "Пройдено ✓";
       completeBtn.disabled = true;
     }
 
     completeBtn.addEventListener("click", function () {
-      markCompleted(lesson.lesson_id);
+      markModuleCompleted(lesson.branch_id, lesson.module_id, branchModules);
       completeBtn.textContent = "Пройдено ✓";
       completeBtn.disabled = true;
       setTimeout(function () {
-        window.location.href = "./index.html";
+        window.location.href = backUrl;
       }, 250);
     });
   }
@@ -608,7 +603,7 @@
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
+      .replace(/\"/g, "&quot;")
       .replace(/'/g, "&#039;");
   }
 
@@ -617,20 +612,19 @@
   }
 
   function showDashboardLoading() {
-    var list = document.getElementById("lessonsContainer");
+    var list = document.getElementById("branchesContainer");
     var box = document.getElementById("stateBox");
     box.hidden = false;
-    box.textContent = "Загрузка уроков...";
-    list.innerHTML = [
-      '<div class="lesson-card skeleton" aria-hidden="true" style="height:220px"></div>',
-      '<div class="lesson-card skeleton" aria-hidden="true" style="height:220px"></div>'
-    ].join("");
+    box.classList.add("skeleton");
+    box.textContent = "Загрузка эмоций...";
+    list.innerHTML = "";
   }
 
   function showDashboardError(message) {
-    document.getElementById("lessonsContainer").innerHTML = "";
+    document.getElementById("branchesContainer").innerHTML = "";
     var box = document.getElementById("stateBox");
     box.hidden = false;
+    box.classList.remove("skeleton");
     box.textContent = message || "Ошибка загрузки данных";
   }
 
@@ -640,38 +634,55 @@
     initTelegramViewport();
 
     var page = document.body.getAttribute("data-page");
-    if (page === "dashboard") {
-      showDashboardLoading();
-    }
+    if (page === "dashboard") showDashboardLoading();
 
     try {
-      var lessons = await fetchLessons(config);
-      if (page === "dashboard") renderDashboard(lessons, config);
-      if (page === "lesson") renderLesson(lessons);
+      var modules = await fetchModules(config);
+      var branches = groupByBranches(modules);
+      var progress = loadProgress();
+
+      BRANCH_ORDER.forEach(function (branchId) {
+        if (branches[branchId] && isBranchCompleted(branchId, branches[branchId].modules, progress)) {
+          progress.completedBranches[branchId] = true;
+        }
+      });
+      saveProgress(progress);
+
+      if (page === "dashboard") {
+        renderDashboard(branches, progress);
+      }
+
+      if (page === "branch") {
+        var branchId = new URLSearchParams(window.location.search).get("branch_id");
+        renderBranchPage(branchId, branches, progress);
+      }
+
+      if (page === "lesson") {
+        renderLesson(modules, branches);
+      }
     } catch (error) {
       if (page === "dashboard") {
         showDashboardError(error.message || "Ошибка загрузки данных");
+      } else if (page === "branch") {
+        var state = document.getElementById("branchState");
+        state.classList.remove("skeleton");
+        state.textContent = error.message || "Не удалось загрузить эмоцию.";
       } else {
-        var stateBox = document.getElementById("lessonState");
-        stateBox.classList.remove("skeleton");
-        stateBox.textContent = error.message || "Не удалось загрузить урок.";
+        var lessonState = document.getElementById("lessonState");
+        lessonState.classList.remove("skeleton");
+        lessonState.textContent = error.message || "Не удалось загрузить урок.";
       }
     }
   }
-// Делает всю карточку урока кликабельной
-document.addEventListener("click", function (e) {
 
-  var card = e.target.closest(".lesson-card");
-  if (!card) return;
+  document.addEventListener("click", function (e) {
+    var card = e.target.closest(".lesson-card, .branch-card");
+    if (!card) return;
+    if (e.target.closest(".btn, a")) return;
 
-  // если нажали на кнопку — пусть работает как раньше
-  if (e.target.closest(".btn")) return;
+    var button = card.querySelector(".btn, .branch-card-link[href]");
+    if (button) button.click();
+  });
 
-  var button = card.querySelector(".btn");
-  if (button) {
-    button.click();
-  }
-
-});
   init();
 })();
