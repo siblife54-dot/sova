@@ -926,3 +926,42 @@ a { color: inherit; }
 .branch-progress-wrap {
   margin-bottom: 8px;
 }
+
+/* Улучшаем текст */
+
+.hero-description {
+  font-size: 16px;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.85);
+  max-width: 560px;
+}
+
+.hero-description ul {
+  margin-top: 14px;
+  margin-bottom: 18px;
+  padding-left: 22px;
+}
+
+.hero-description li {
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.hero-description strong {
+  display: block;
+  margin-top: 20px;
+  margin-bottom: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+}
+
+.hero-description p:last-child {
+  margin-top: 18px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.95);
+}
+
+.hero-description li::marker {
+  color: rgba(255,255,255,0.6);
+}
