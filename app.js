@@ -289,9 +289,7 @@
 
   function renderDashboardHero(modules, config) {
     var container = document.getElementById("dashboardHero");
-    var textContainer = document.getElementById("dashboardHeroText");
     if (!container) return;
-    if (!textContainer) return;
 
     var hero = getCourseHero(modules, config);
     var title = hero.title || String(config.brandName || "Кабинет курса").trim();
@@ -301,13 +299,12 @@
       '<div class="dashboard-hero-media">',
       (hero.imageUrl ? '<img src="' + escapeAttr(hero.imageUrl) + '" alt="' + escapeAttr(title) + '" loading="lazy">' : ""),
       '<div class="dashboard-hero-overlay"></div>',
-      '</div>'
-    ].join("");
-
-    textContainer.innerHTML = [
+      '<div class="dashboard-hero-content">',
       (hero.pretitle ? '<p class="dashboard-hero-pretitle">' + escapeHtml(hero.pretitle) + '</p>' : ""),
       '<h1>' + escapeHtml(title) + '</h1>',
-      (hero.description ? '<div class="dashboard-hero-description">' + hero.description + '</div>' : "")
+      (hero.description ? '<div class="dashboard-hero-description hero-description">' + hero.description + '</div>' : ""),
+      '</div>',
+      '</div>'
     ].join("");
   }
 
