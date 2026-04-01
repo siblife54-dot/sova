@@ -630,6 +630,67 @@ a { color: inherit; }
   margin: 0 2px 2px;
 }
 
+.dashboard-hero {
+  position: relative;
+  min-height: 128px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(139, 92, 246, 0.35), transparent 58%),
+    linear-gradient(135deg, #2f3f67, #131f34 58%, #0f1829);
+}
+
+.dashboard-hero-media {
+  position: absolute;
+  inset: 0;
+}
+
+.dashboard-hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.dashboard-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(7, 15, 27, 0.12) 0%, rgba(7, 15, 27, 0.72) 78%, rgba(7, 15, 27, 0.86) 100%);
+}
+
+.dashboard-hero:not(.with-image) .dashboard-hero-overlay {
+  background: linear-gradient(180deg, rgba(16, 28, 48, 0.2) 0%, rgba(16, 28, 48, 0.65) 100%);
+}
+
+.dashboard-hero-body {
+  position: relative;
+  z-index: 2;
+  padding: 14px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 128px;
+}
+
+.dashboard-hero-body h1 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.24;
+  text-wrap: balance;
+}
+
+.dashboard-hero-body p {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.35;
+  color: rgba(238, 243, 255, 0.9);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .user-card-compact {
   padding: 10px;
   display: flex;
