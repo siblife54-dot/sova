@@ -648,13 +648,26 @@ a { color: inherit; }
   left: 0;
   right: 0;
   bottom: 0;
-  height: 55%;
+  height: 68%;
   background: linear-gradient(
     to bottom,
     rgba(6, 20, 35, 0) 0%,
-    rgba(6, 20, 35, 0.75) 70%,
-    rgba(6, 20, 35, 1) 100%
+    rgba(6, 20, 35, 0.68) 52%,
+    rgba(6, 20, 35, 0.95) 76%,
+    var(--bg) 100%
   );
+  z-index: 1;
+}
+
+.dashboard-hero-media::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: clamp(56px, 12vw, 120px);
+  background: linear-gradient(to bottom, rgba(6, 20, 35, 0), var(--bg));
+  pointer-events: none;
   z-index: 1;
 }
 
@@ -693,10 +706,17 @@ a { color: inherit; }
 
 .dashboard-hero-description {
   margin-top: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .dashboard-hero-description-wrap {
-  padding: 16px 20px 0;
+  position: relative;
+  z-index: 2;
+  margin-top: -6px;
+  padding: 0 20px 0;
   background: transparent;
 }
 
