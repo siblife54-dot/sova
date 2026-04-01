@@ -109,6 +109,7 @@
       course_id: raw.course_id,
       hero_image_url: raw.hero_image_url || "",
       hero_title: raw.hero_title || "",
+      hero_text: raw.hero_text || "",
       hero_description: raw.hero_description || "",
       branch_id: (raw.branch_id || "").trim(),
       branch_title: raw.branch_title || "",
@@ -268,25 +269,29 @@
     if (!modules || !modules.length) {
       return {
         imageUrl: "",
+        pretitle: "",
         title: String(config.brandName || "Кабинет курса").trim(),
         description: ""
       };
     }
 
     var source = modules.find(function (module) {
-      return module.hero_image_url || module.hero_title || module.hero_description;
+      return module.hero_image_url || module.hero_title || module.hero_text || module.hero_description;
     }) || modules[0];
 
     return {
       imageUrl: normalizePreviewImageUrl(source.hero_image_url || ""),
-      title: String(source.hero_title || config.brandName || "Кабинет курса").trim(),
+      pretitle: String(source.hero_title || "").trim(),
+      title: String(source.hero_text || config.brandName || "Кабинет курса").trim(),
       description: String(source.hero_description || "").trim()
     };
   }
 
   function renderDashboardHero(modules, config) {
     var container = document.getElementById("dashboardHero");
+    var textContainer = document.getElementById("dashboardHeroText");
     if (!container) return;
+    if (!textContainer) return;
 
     var hero = getCourseHero(modules, config);
     var title = hero.title || String(config.brandName || "Кабинет курса").trim();
@@ -296,11 +301,13 @@
       '<div class="dashboard-hero-media">',
       (hero.imageUrl ? '<img src="' + escapeAttr(hero.imageUrl) + '" alt="' + escapeAttr(title) + '" loading="lazy">' : ""),
       '<div class="dashboard-hero-overlay"></div>',
-      '</div>',
-      '<div class="dashboard-hero-body">',
-      '<h1>' + escapeHtml(title) + '</h1>',
-      (hero.description ? '<p>' + escapeHtml(hero.description) + '</p>' : ""),
       '</div>'
+    ].join("");
+
+    textContainer.innerHTML = [
+      (hero.pretitle ? '<p class="dashboard-hero-pretitle">' + escapeHtml(hero.pretitle) + '</p>' : ""),
+      '<h1>' + escapeHtml(title) + '</h1>',
+      (hero.description ? '<p class="dashboard-hero-description">' + escapeHtml(hero.description) + '</p>' : "")
     ].join("");
   }
 
