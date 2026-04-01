@@ -623,7 +623,6 @@ a { color: inherit; }
 
 .dashboard-hero {
   position: relative;
-  min-height: min(60vh, 460px);
   margin: 0 -12px;
   overflow: hidden;
   background:
@@ -693,7 +692,12 @@ a { color: inherit; }
 }
 
 .dashboard-hero-description {
-  margin-top: 10px;
+  margin-top: 0;
+}
+
+.dashboard-hero-description-wrap {
+  padding: 16px 20px 0;
+  background: transparent;
 }
 
 .user-card-compact {
