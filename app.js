@@ -107,6 +107,9 @@
   function normalizeModule(raw) {
     return {
       course_id: raw.course_id,
+      hero_image_url: raw.hero_image_url || "",
+      hero_title: raw.hero_title || "",
+      hero_description: raw.hero_description || "",
       branch_id: (raw.branch_id || "").trim(),
       branch_title: raw.branch_title || "",
       branch_order: Number(raw.branch_order || 0),
@@ -261,6 +264,46 @@
     ].join("");
   }
 
+  function getCourseHero(modules, config) {
+    if (!modules || !modules.length) {
+      return {
+        imageUrl: "",
+        title: String(config.brandName || "Кабинет курса").trim(),
+        description: ""
+      };
+    }
+
+    var source = modules.find(function (module) {
+      return module.hero_image_url || module.hero_title || module.hero_description;
+    }) || modules[0];
+
+    return {
+      imageUrl: normalizePreviewImageUrl(source.hero_image_url || ""),
+      title: String(source.hero_title || config.brandName || "Кабинет курса").trim(),
+      description: String(source.hero_description || "").trim()
+    };
+  }
+
+  function renderDashboardHero(modules, config) {
+    var container = document.getElementById("dashboardHero");
+    if (!container) return;
+
+    var hero = getCourseHero(modules, config);
+    var title = hero.title || String(config.brandName || "Кабинет курса").trim();
+
+    container.classList.toggle("with-image", Boolean(hero.imageUrl));
+    container.innerHTML = [
+      '<div class="dashboard-hero-media">',
+      (hero.imageUrl ? '<img src="' + escapeAttr(hero.imageUrl) + '" alt="' + escapeAttr(title) + '" loading="lazy">' : ""),
+      '<div class="dashboard-hero-overlay"></div>',
+      '</div>',
+      '<div class="dashboard-hero-body">',
+      '<h1>' + escapeHtml(title) + '</h1>',
+      (hero.description ? '<p>' + escapeHtml(hero.description) + '</p>' : ""),
+      '</div>'
+    ].join("");
+  }
+
   function renderDashboardProgress(cards) {
     var container = document.getElementById("dashboardProgress");
     if (!container) return;
@@ -281,10 +324,11 @@
     ].join("");
   }
 
-  function renderDashboard(branches, progress) {
+  function renderDashboard(modules, branches, progress, config) {
     var container = document.getElementById("branchesContainer");
     var stateBox = document.getElementById("stateBox");
     var cards = getBranchCardsData(branches, progress);
+    renderDashboardHero(modules, config);
     renderUserCard();
     renderDashboardProgress(cards);
 
@@ -714,7 +758,7 @@
       saveProgress(progress);
 
       if (page === "dashboard") {
-        renderDashboard(branches, progress);
+        renderDashboard(modules, branches, progress, config);
       }
 
       if (page === "branch") {
