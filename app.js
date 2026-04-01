@@ -302,9 +302,9 @@
       '<div class="dashboard-hero-content">',
       (hero.pretitle ? '<p class="dashboard-hero-pretitle">' + escapeHtml(hero.pretitle) + '</p>' : ""),
       '<h1>' + escapeHtml(title) + '</h1>',
-      (hero.description ? '<div class="dashboard-hero-description hero-description">' + hero.description + '</div>' : ""),
       '</div>',
-      '</div>'
+      '</div>',
+      (hero.description ? '<div class="dashboard-hero-description-wrap"><div class="dashboard-hero-description hero-description">' + hero.description + '</div></div>' : "")
     ].join("");
   }
 
