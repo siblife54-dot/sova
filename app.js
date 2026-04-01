@@ -307,7 +307,7 @@
     textContainer.innerHTML = [
       (hero.pretitle ? '<p class="dashboard-hero-pretitle">' + escapeHtml(hero.pretitle) + '</p>' : ""),
       '<h1>' + escapeHtml(title) + '</h1>',
-      (hero.description ? '<p class="dashboard-hero-description">' + escapeHtml(hero.description) + '</p>' : "")
+      (hero.description ? '<div class="dashboard-hero-description">' + hero.description + '</div>' : "")
     ].join("");
   }
 
