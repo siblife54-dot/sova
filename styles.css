@@ -748,10 +748,11 @@ a { color: inherit; }
 .dashboard-hero-description {
   margin: 0;
   padding: 10px 20px 0;
-  background: none !important;
-  border: 0 !important;
+  background: transparent !important;
+  border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
+  outline: none !important;
 }
 
 .user-card-compact {
