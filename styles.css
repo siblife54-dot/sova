@@ -990,158 +990,42 @@ a { color: inherit; }
   margin-bottom: 8px;
 }
 
-/* Улучшаем текст hero-description */
-
-.hero-description {
-  font-size: 16px;
-  line-height: 1.7;
-  color: rgba(255,255,255,0.85);
-  max-width: 560px;
-}
-
-.hero-description ul {
-  margin-top: 14px;
-  margin-bottom: 18px;
-  padding-left: 22px;
-}
-
-.hero-description li {
-  margin-bottom: 10px;
-  line-height: 1.6;
-}
-
-.hero-description strong {
-  display: block;
-  margin-top: 20px;
-  margin-bottom: 12px;
-  font-size: 18px;
-  font-weight: 600;
-  color: white;
-}
-
-.hero-description p:last-child {
-  margin-top: 18px;
-  font-weight: 500;
-  color: rgba(255,255,255,0.95);
-}
-
-.hero-description li::marker {
-  color: rgba(255,255,255,0.6);
-}
-
-/* УБИРАЕМ ЛЮБЫЕ РАЗДЕЛИТЕЛИ МЕЖДУ HERO И ТЕКСТОМ */
-
-.dashboard-hero-description,
-.dashboard-hero-description-wrap,
-.dashboard-hero-content {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-/* если вдруг линия рисуется псевдоэлементом */
-.dashboard-hero-description::before,
-.dashboard-hero-description::after,
-.dashboard-hero-description-wrap::before,
-.dashboard-hero-description-wrap::after {
-  display: none !important;
-  content: none !important;
-}
-
-/* гарантируем плавный переход */
-.dashboard-hero-media {
-  border-bottom: none !important;
-}
-
+/* ===== Editorial text block under hero ===== */
 .dashboard-hero-description {
-  margin-top: 0;
-  padding: 0 20px 0;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-.dashboard-hero {
-  background: transparent;
-}
-
-.dashboard-hero-media {
-  margin-bottom: 0;
-}
-
-.dashboard-hero-description,
-.dashboard-hero-description-wrap,
-.dashboard-hero-content {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-.dashboard-hero-description::before,
-.dashboard-hero-description::after,
-.dashboard-hero-description-wrap::before,
-.dashboard-hero-description-wrap::after {
-  display: none !important;
-  content: none !important;
-}
-
-.dashboard-hero {
-  background: transparent;
-}
-
-.dashboard-hero-media {
-  margin-bottom: 0;
-}
-
-.dashboard-hero-description,
-.dashboard-hero-description-wrap,
-.dashboard-hero-content {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-.dashboard-hero-description::before,
-.dashboard-hero-description::after,
-.dashboard-hero-description-wrap::before,
-.dashboard-hero-description-wrap::after {
-  display: none !important;
-  content: none !important;
-}
-
-/* ===== Premium editorial block under hero ===== */
-
-.dashboard-hero-description {
-  margin: 0;
-  padding: 22px 28px 8px;
-  max-width: 720px;
+  margin: 0 auto;
+  padding: 26px 20px 6px;
+  max-width: 700px;
   color: rgba(255, 255, 255, 0.9);
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .dashboard-hero-description p {
-  margin: 0 0 18px;
-  font-size: 18px;
-  line-height: 1.75;
+  margin: 0 0 16px;
+  max-width: 66ch;
+  font-size: 15px;
+  line-height: 1.68;
   letter-spacing: -0.01em;
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(255, 255, 255, 0.86);
 }
 
 .dashboard-hero-description p:first-child {
+  margin-bottom: 22px;
+  max-width: 58ch;
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.72;
   font-weight: 500;
-  letter-spacing: -0.02em;
-  color: rgba(255, 255, 255, 0.98);
-  max-width: 34ch;
+  color: rgba(255, 255, 255, 0.96);
 }
 
 .dashboard-hero-description strong {
   display: block;
-  margin: 34px 0 18px;
-  font-size: 28px;
-  line-height: 1.15;
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  margin: 28px 0 14px;
+  font-size: 22px;
+  line-height: 1.26;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: #ffffff;
 }
 
@@ -1153,34 +1037,26 @@ a { color: inherit; }
 
 .dashboard-hero-description li {
   position: relative;
-  margin: 0 0 20px;
-  padding-left: 30px;
-  font-size: 14px;
-  line-height: 1.7;
+  margin: 0;
+  padding: 0 0 0 20px;
+  font-size: 15px;
+  line-height: 1.62;
+  letter-spacing: -0.008em;
   color: rgba(255, 255, 255, 0.9);
-  letter-spacing: -0.01em;
+}
+
+.dashboard-hero-description li + li {
+  margin-top: 11px;
 }
 
 .dashboard-hero-description li::before {
   content: "";
   position: absolute;
   left: 0;
-  top: 0.72em;
-  width: 8px;
-  height: 8px;
+  top: 0.64em;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(190,210,255,0.7));
-  box-shadow: 0 0 0 4px rgba(140, 180, 255, 0.08);
+  background: rgba(228, 238, 255, 0.9);
   transform: translateY(-50%);
-}
-
-.dashboard-hero-description p:last-child {
-  margin-top: 30px;
-  padding-top: 20px;
-  max-width: 30ch;
-  font-size: 18px;
-  line-height: 1.45;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  color: #ffffff;
 }
