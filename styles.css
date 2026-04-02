@@ -1084,3 +1084,27 @@ a { color: inherit; }
   display: none !important;
   content: none !important;
 }
+
+.dashboard-hero {
+  background: transparent;
+}
+
+.dashboard-hero-media {
+  margin-bottom: 0;
+}
+
+.dashboard-hero-description,
+.dashboard-hero-description-wrap,
+.dashboard-hero-content {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.dashboard-hero-description::before,
+.dashboard-hero-description::after,
+.dashboard-hero-description-wrap::before,
+.dashboard-hero-description-wrap::after {
+  display: none !important;
+  content: none !important;
+}
