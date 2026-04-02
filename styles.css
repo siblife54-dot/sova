@@ -699,14 +699,30 @@ a { color: inherit; }
 .dashboard-hero-text {
   margin: 0;
   font-size: 28px;
-  line-height: 1.24;
+  line-height: 1.06;
+  font-weight: 850;
+  letter-spacing: -0.028em;
   text-wrap: balance;
-  max-width: 340px;
+  max-width: 420px;
   margin-left: auto;
   margin-right: auto;
+  color: #eef4ff;
+  background: linear-gradient(
+    175deg,
+    #ffffff 0%,
+    #f4f8ff 32%,
+    #d9e6ff 68%,
+    #ffffff 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   text-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.4),
-    0 8px 32px rgba(0, 0, 0, 0.35);
+    0 1px 0 rgba(255, 255, 255, 0.28),
+    0 10px 24px rgba(3, 8, 18, 0.62),
+    0 24px 58px rgba(2, 5, 14, 0.55),
+    0 0 16px rgba(172, 204, 255, 0.34),
+    0 0 36px rgba(118, 160, 241, 0.22);
 }
 
 .dashboard-hero-description {
