@@ -1029,3 +1029,27 @@ a { color: inherit; }
 .hero-description li::marker {
   color: rgba(255,255,255,0.6);
 }
+
+/* УБИРАЕМ ЛЮБЫЕ РАЗДЕЛИТЕЛИ МЕЖДУ HERO И ТЕКСТОМ */
+
+.dashboard-hero-description,
+.dashboard-hero-description-wrap,
+.dashboard-hero-content {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* если вдруг линия рисуется псевдоэлементом */
+.dashboard-hero-description::before,
+.dashboard-hero-description::after,
+.dashboard-hero-description-wrap::before,
+.dashboard-hero-description-wrap::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* гарантируем плавный переход */
+.dashboard-hero-media {
+  border-bottom: none !important;
+}
