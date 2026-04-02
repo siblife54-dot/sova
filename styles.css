@@ -993,6 +993,10 @@ a { color: inherit; }
   color: rgba(255,255,255,0.6);
 }
 
+.dashboard-hero-media {
+  position: relative;
+}
+
 .dashboard-hero-media::before {
   content: "";
   position: absolute;
@@ -1008,4 +1012,16 @@ a { color: inherit; }
     );
 
   mix-blend-mode: screen;
+  animation: heroGlow 8s ease-in-out infinite alternate;
+}
+
+@keyframes heroGlow {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
 }
