@@ -287,12 +287,47 @@
     };
   }
 
+  function sanitizeHeroDescription(rawHtml) {
+    if (!rawHtml) return "";
+
+    var allowedTags = { p: true, ul: true, li: true, strong: true, br: true };
+    var source = document.createElement("template");
+    source.innerHTML = String(rawHtml);
+
+    var root = document.createElement("div");
+
+    function appendSanitizedNodes(sourceParent, targetParent) {
+      Array.prototype.forEach.call(sourceParent.childNodes, function (node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          targetParent.appendChild(document.createTextNode(node.textContent || ""));
+          return;
+        }
+
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+        var tag = String(node.tagName || "").toLowerCase();
+        if (!allowedTags[tag]) {
+          appendSanitizedNodes(node, targetParent);
+          return;
+        }
+
+        var cleanNode = document.createElement(tag);
+        if (tag !== "br") appendSanitizedNodes(node, cleanNode);
+        targetParent.appendChild(cleanNode);
+      });
+    }
+
+    appendSanitizedNodes(source.content, root);
+    return root.innerHTML.trim();
+  }
+
   function renderDashboardHero(modules, config) {
     var container = document.getElementById("dashboardHero");
     if (!container) return;
 
     var hero = getCourseHero(modules, config);
     var title = hero.title || String(config.brandName || "Кабинет курса").trim();
+    var safeDescription = sanitizeHeroDescription(hero.description);
 
     container.classList.toggle("with-image", Boolean(hero.imageUrl));
     container.innerHTML = [
@@ -303,7 +338,7 @@
       '<h1 class="dashboard-hero-text">' + escapeHtml(title) + '</h1>',
       '</div>',
       '</div>',
-      (hero.description ? '<div class="dashboard-hero-description hero-description">' + hero.description + '</div>' : "")
+      (safeDescription ? '<div class="dashboard-hero-description hero-description">' + safeDescription + '</div>' : "")
     ].join("");
   }
 

@@ -626,16 +626,17 @@ a { color: inherit; }
 }
 
 .dashboard-main-layout {
+  display: grid;
+  gap: 12px;
   width: 100%;
   max-width: none;
+  align-items: stretch;
 }
 
-.dashboard-main-layout > .user-card-compact,
-.dashboard-main-layout > .dashboard-progress-compact,
-.dashboard-main-layout > .branches-grid,
-.dashboard-main-layout > .state {
+.dashboard-main-layout > * {
   width: 100%;
   max-width: none;
+  min-width: 0;
   margin-left: 0;
   margin-right: 0;
 }
