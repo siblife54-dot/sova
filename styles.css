@@ -622,74 +622,54 @@ a { color: inherit; }
 }
 
 .dashboard-hero {
-  position: relative;
   margin: 0 -12px;
-  overflow: hidden;
-  background:
-    radial-gradient(120% 120% at 0% 0%, rgba(139, 92, 246, 0.42), transparent 58%),
-    linear-gradient(145deg, #445e8d 0%, #1e2f4a 45%, #0d1728 100%);
 }
 
 .dashboard-hero-media {
   position: relative;
   width: 100%;
-  min-height: min(60vh, 460px);
+  height: clamp(420px, 56vh, 620px);
+  overflow: hidden;
 }
 
-.dashboard-hero-media img {
+.dashboard-hero-image {
   width: 100%;
-  height: min(60vh, 460px);
+  height: 100%;
   object-fit: cover;
   display: block;
 }
 
 .dashboard-hero-overlay {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 62%;
-  background: linear-gradient(
-    to bottom,
-    rgba(6, 20, 35, 0) 0%,
-    rgba(6, 20, 35, 0.78) 45%,
-    rgba(6, 20, 35, 0.97) 72%,
-    var(--bg) 100%
-  );
-  z-index: 1;
+  left: 20px;
+  right: 20px;
+  bottom: clamp(28px, 4.2vh, 36px);
+  z-index: 2;
+  max-width: 520px;
 }
 
 .dashboard-hero-media::after {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: clamp(56px, 12vw, 120px);
-  background: linear-gradient(to bottom, rgba(6, 20, 35, 0), var(--bg));
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(7, 15, 26, 0) 30%,
+    rgba(7, 15, 26, 0.65) 66%,
+    rgba(7, 15, 26, 0.9) 82%,
+    var(--bg) 100%
+  );
   pointer-events: none;
   z-index: 1;
 }
 
-.dashboard-hero:not(.with-image) .dashboard-hero-overlay {
-  background: linear-gradient(
-    180deg,
-    rgba(26, 38, 62, 0.15) 15%,
-    rgba(18, 31, 52, 0.72) 72%,
-    var(--bg) 100%
-  );
+.dashboard-hero:not(.with-image) .dashboard-hero-media {
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(139, 92, 246, 0.42), transparent 58%),
+    linear-gradient(145deg, #445e8d 0%, #1e2f4a 45%, #0d1728 100%);
 }
 
-.dashboard-hero-content {
-  position: absolute;
-  left: 20px;
-  right: 20px;
-  bottom: 40px;
-  z-index: 2;
-  max-width: 520px;
-}
-
-.dashboard-hero-pretitle {
+.dashboard-hero-title {
   margin: 0 0 6px;
   font-size: 12px;
   letter-spacing: 0.08em;
@@ -697,7 +677,7 @@ a { color: inherit; }
   color: var(--muted);
 }
 
-.dashboard-hero-content h1 {
+.dashboard-hero-text {
   margin: 0;
   font-size: 28px;
   line-height: 1.24;
@@ -705,21 +685,9 @@ a { color: inherit; }
 }
 
 .dashboard-hero-description {
-  margin-top: 0;
-  background: transparent !important;
-  background-color: transparent !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-}
-
-.dashboard-hero-description-wrap {
-  position: relative;
-  z-index: 3;
-  margin-top: -48px;
-  padding: 0 20px 0;
-  background: transparent !important;
-  background-color: transparent !important;
+  margin: 0;
+  padding: 10px 20px 0;
+  background: none !important;
   border: 0 !important;
   border-radius: 0 !important;
   box-shadow: none !important;
