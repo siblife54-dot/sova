@@ -297,14 +297,13 @@
     container.classList.toggle("with-image", Boolean(hero.imageUrl));
     container.innerHTML = [
       '<div class="dashboard-hero-media">',
-      (hero.imageUrl ? '<img src="' + escapeAttr(hero.imageUrl) + '" alt="' + escapeAttr(title) + '" loading="lazy">' : ""),
-      '<div class="dashboard-hero-overlay"></div>',
-      '<div class="dashboard-hero-content">',
-      (hero.pretitle ? '<p class="dashboard-hero-pretitle">' + escapeHtml(hero.pretitle) + '</p>' : ""),
-      '<h1>' + escapeHtml(title) + '</h1>',
+      (hero.imageUrl ? '<img class="dashboard-hero-image" src="' + escapeAttr(hero.imageUrl) + '" alt="' + escapeAttr(title) + '" loading="lazy">' : ""),
+      '<div class="dashboard-hero-overlay">',
+      (hero.pretitle ? '<p class="dashboard-hero-title">' + escapeHtml(hero.pretitle) + '</p>' : ""),
+      '<h1 class="dashboard-hero-text">' + escapeHtml(title) + '</h1>',
       '</div>',
       '</div>',
-      (hero.description ? '<div class="dashboard-hero-description-wrap"><div class="dashboard-hero-description hero-description">' + hero.description + '</div></div>' : "")
+      (hero.description ? '<div class="dashboard-hero-description hero-description">' + hero.description + '</div>' : "")
     ].join("");
   }
 
