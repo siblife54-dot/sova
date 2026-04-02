@@ -1053,3 +1053,7 @@ a { color: inherit; }
 .dashboard-hero-media {
   border-bottom: none !important;
 }
+
+.dashboard-hero-description {
+  margin-top: -2px;
+}
