@@ -698,31 +698,37 @@ a { color: inherit; }
 
 .dashboard-hero-text {
   margin: 0;
-  font-size: 28px;
-  line-height: 1.06;
-  font-weight: 850;
-  letter-spacing: -0.028em;
+  font-size: clamp(31px, 4.2vw, 40px);
+  line-height: 1.04;
+  font-weight: 900;
+  letter-spacing: -0.034em;
   text-wrap: balance;
-  max-width: 420px;
+  max-width: 500px;
   margin-left: auto;
   margin-right: auto;
   color: #eef4ff;
   background: linear-gradient(
-    175deg,
+    168deg,
     #ffffff 0%,
-    #f4f8ff 32%,
-    #d9e6ff 68%,
+    #f9fbff 27%,
+    #dce8ff 60%,
+    #f0f6ff 83%,
     #ffffff 100%
   );
+  background-size: 100% 135%;
+  background-position: 50% 52%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  position: relative;
+  filter: drop-shadow(0 14px 34px rgba(2, 8, 20, 0.52));
   text-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.28),
-    0 10px 24px rgba(3, 8, 18, 0.62),
-    0 24px 58px rgba(2, 5, 14, 0.55),
-    0 0 16px rgba(172, 204, 255, 0.34),
-    0 0 36px rgba(118, 160, 241, 0.22);
+    0 1px 0 rgba(255, 255, 255, 0.62),
+    0 2px 2px rgba(221, 232, 255, 0.28),
+    0 12px 32px rgba(2, 7, 18, 0.72),
+    0 28px 68px rgba(1, 4, 12, 0.58),
+    0 0 22px rgba(170, 204, 255, 0.42),
+    0 0 48px rgba(112, 154, 239, 0.26);
 }
 
 .dashboard-hero-description {
