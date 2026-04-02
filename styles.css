@@ -992,3 +992,20 @@ a { color: inherit; }
 .hero-description li::marker {
   color: rgba(255,255,255,0.6);
 }
+
+.dashboard-hero-media::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at 50% 60%,
+      rgba(120, 170, 255, 0.18),
+      rgba(120, 170, 255, 0.08) 35%,
+      rgba(0, 0, 0, 0) 70%
+    );
+
+  mix-blend-mode: screen;
+}
