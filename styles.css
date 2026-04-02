@@ -744,16 +744,6 @@ a { color: inherit; }
     0 0 48px rgba(112, 154, 239, 0.26);
 }
 
-.dashboard-hero-description {
-  margin: 0;
-  padding: 10px 20px 0;
-  background: transparent !important;
-  border: none !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
 .user-card-compact {
   padding: 10px;
   display: flex;
@@ -992,16 +982,21 @@ a { color: inherit; }
 
 /* ===== Editorial text block under hero ===== */
 .dashboard-hero-description {
-  margin: 0 auto;
-  padding: 26px 20px 6px;
-  max-width: 700px;
+  display: block;
+  width: auto;
+  margin: 0;
+  padding: 24px 20px 28px;
+  box-sizing: border-box;
+  clear: both;
   color: rgba(255, 255, 255, 0.9);
   background: transparent !important;
   border: none !important;
+  border-radius: 0 !important;
   box-shadow: none !important;
+  outline: none !important;
 }
 
-.dashboard-hero-description p {
+.dashboard-hero-description > p {
   margin: 0 0 16px;
   max-width: 66ch;
   font-size: 15px;
@@ -1010,7 +1005,7 @@ a { color: inherit; }
   color: rgba(255, 255, 255, 0.86);
 }
 
-.dashboard-hero-description p:first-child {
+.dashboard-hero-description > p:first-child {
   margin-bottom: 22px;
   max-width: 58ch;
   font-size: 16px;
@@ -1019,9 +1014,9 @@ a { color: inherit; }
   color: rgba(255, 255, 255, 0.96);
 }
 
-.dashboard-hero-description strong {
+.dashboard-hero-description > strong {
   display: block;
-  margin: 28px 0 14px;
+  margin: 24px 0 12px;
   font-size: 22px;
   line-height: 1.26;
   font-weight: 700;
@@ -1029,13 +1024,13 @@ a { color: inherit; }
   color: #ffffff;
 }
 
-.dashboard-hero-description ul {
+.dashboard-hero-description > ul {
   list-style: none;
-  margin: 0;
+  margin: 0 0 18px;
   padding: 0;
 }
 
-.dashboard-hero-description li {
+.dashboard-hero-description > ul > li {
   position: relative;
   margin: 0;
   padding: 0 0 0 20px;
@@ -1045,11 +1040,11 @@ a { color: inherit; }
   color: rgba(255, 255, 255, 0.9);
 }
 
-.dashboard-hero-description li + li {
+.dashboard-hero-description > ul > li + li {
   margin-top: 11px;
 }
 
-.dashboard-hero-description li::before {
+.dashboard-hero-description > ul > li::before {
   content: "";
   position: absolute;
   left: 0;
@@ -1059,4 +1054,8 @@ a { color: inherit; }
   border-radius: 50%;
   background: rgba(228, 238, 255, 0.9);
   transform: translateY(-50%);
+}
+
+.dashboard-hero-description > p:last-child {
+  margin-bottom: 0;
 }
