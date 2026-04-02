@@ -625,6 +625,21 @@ a { color: inherit; }
   margin: 0 -12px;
 }
 
+.dashboard-main-layout {
+  width: 100%;
+  max-width: none;
+}
+
+.dashboard-main-layout > .user-card-compact,
+.dashboard-main-layout > .dashboard-progress-compact,
+.dashboard-main-layout > .branches-grid,
+.dashboard-main-layout > .state {
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+}
+
 .dashboard-hero-media {
   position: relative;
   width: 100%;
