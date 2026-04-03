@@ -38,30 +38,95 @@
     if (typeof tg.expand === "function") tg.expand();
   }
 
-  function loadProgress() {
-    try {
-      var raw = localStorage.getItem(PROGRESS_STORAGE_KEY);
-      if (!raw) {
-        return { completedModules: {}, completedBranches: {} };
-      }
+  function getDefaultProgress() {
+    return { completedModules: {}, completedBranches: {} };
+  }
 
+  function parseProgress(raw) {
+    if (!raw) return getDefaultProgress();
+
+    try {
       var parsed = JSON.parse(raw);
       return {
         completedModules: parsed && parsed.completedModules ? parsed.completedModules : {},
         completedBranches: parsed && parsed.completedBranches ? parsed.completedBranches : {}
       };
     } catch (e) {
-      return { completedModules: {}, completedBranches: {} };
+      return getDefaultProgress();
     }
   }
 
-  function saveProgress(progress) {
+  function getCloudStorage() {
+    var tg = globalThis.Telegram && globalThis.Telegram.WebApp;
+    if (!tg || !tg.CloudStorage) return null;
+    return tg.CloudStorage;
+  }
+
+  function cloudSetItem(key, value) {
+    var cloud = getCloudStorage();
+    if (!cloud || typeof cloud.setItem !== "function") {
+      return Promise.reject(new Error("CloudStorage недоступен"));
+    }
+
+    return new Promise(function (resolve, reject) {
+      cloud.setItem(key, value, function (error, stored) {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(stored);
+      });
+    });
+  }
+
+  function cloudGetItem(key) {
+    var cloud = getCloudStorage();
+    if (!cloud || typeof cloud.getItem !== "function") {
+      return Promise.reject(new Error("CloudStorage недоступен"));
+    }
+
+    return new Promise(function (resolve, reject) {
+      cloud.getItem(key, function (error, value) {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(value || "");
+      });
+    });
+  }
+
+  async function loadProgress() {
+    try {
+      var cloudRaw = await cloudGetItem(PROGRESS_STORAGE_KEY);
+      if (cloudRaw) {
+        return parseProgress(cloudRaw);
+      }
+    } catch (e) {
+      // fallback below
+    }
+
+    try {
+      var localRaw = localStorage.getItem(PROGRESS_STORAGE_KEY);
+      return parseProgress(localRaw);
+    } catch (e) {
+      return getDefaultProgress();
+    }
+  }
+
+  async function saveProgress(progress) {
     var safe = {
       completedModules: progress && progress.completedModules ? progress.completedModules : {},
       completedBranches: progress && progress.completedBranches ? progress.completedBranches : {}
     };
+    var raw = JSON.stringify(safe);
 
-    localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(safe));
+    try {
+      await cloudSetItem(PROGRESS_STORAGE_KEY, raw);
+      return;
+    } catch (e) {
+      localStorage.setItem(PROGRESS_STORAGE_KEY, raw);
+    }
   }
 
   function getModuleProgressKey(branchId, moduleId) {
@@ -234,11 +299,12 @@
     return tg.initDataUnsafe.user;
   }
 
-  function getUserInitials(firstName, lastName) {
+  function getUserFallbackLetter(firstName, lastName, username) {
     var first = String(firstName || "").trim();
     var last = String(lastName || "").trim();
-    var initials = (first.charAt(0) || "") + (last.charAt(0) || "");
-    return initials.toUpperCase() || "U";
+    var uname = String(username || "").trim();
+    var letter = first.charAt(0) || last.charAt(0) || uname.charAt(0) || "U";
+    return letter.toUpperCase();
   }
 
   function renderUserCard() {
@@ -248,19 +314,21 @@
     var user = getTelegramUser() || {};
     var firstName = String(user.first_name || "").trim();
     var lastName = String(user.last_name || "").trim();
-    var fullName = [firstName, lastName].filter(Boolean).join(" ") || "Пользователь";
-    var initials = getUserInitials(firstName, lastName);
+    var username = String(user.username || "").trim();
+    var userId = String(user.id || "").trim();
+    var fullName = [firstName, lastName].filter(Boolean).join(" ") || (username ? "@" + username : "Пользователь " + userId);
+    var fallbackLetter = getUserFallbackLetter(firstName, lastName, username);
     var photoUrl = String(user.photo_url || "").trim();
 
     container.innerHTML = [
-      '<div class="user-avatar-wrap">',
+      '<div class="user-card" data-user-id="' + escapeAttr(userId) + '" data-username="' + escapeAttr(username) + '">',
       (photoUrl
-        ? '<img class="user-avatar-img" src="' + escapeAttr(photoUrl) + '" alt="' + escapeAttr(fullName) + '" loading="lazy">'
-        : '<div class="user-avatar-fallback">' + escapeHtml(initials) + '</div>'),
+        ? '<img class="user-avatar" src="' + escapeAttr(photoUrl) + '" alt="' + escapeAttr(fullName) + '" loading="lazy">'
+        : '<div class="user-avatar-fallback">' + escapeHtml(fallbackLetter) + '</div>'),
+      '<div class="user-info">',
+      '<div class="user-name">' + escapeHtml(fullName) + '</div>',
+      '<div class="user-sub">Доступ к программе открыт</div>',
       '</div>',
-      '<div class="user-meta">',
-      '<h1>' + escapeHtml(fullName) + '</h1>',
-      '<p>Доступ к программе открыт</p>',
       '</div>'
     ].join("");
   }
@@ -615,8 +683,8 @@
     return ext;
   }
 
-  function markModuleCompleted(branchId, moduleId, branchModules) {
-    var progress = loadProgress();
+  async function markModuleCompleted(branchId, moduleId, branchModules) {
+    var progress = await loadProgress();
     var key = getModuleProgressKey(branchId, moduleId);
     progress.completedModules[key] = true;
 
@@ -624,11 +692,11 @@
       progress.completedBranches[branchId] = true;
     }
 
-    saveProgress(progress);
+    await saveProgress(progress);
     return progress;
   }
 
-  function renderLesson(modules, branches) {
+  async function renderLesson(modules, branches) {
     var stateBox = document.getElementById("lessonState");
     var main = document.getElementById("lessonMain");
     var id = new URLSearchParams(window.location.search).get("id");
@@ -651,7 +719,7 @@
 
     var branch = branches[lesson.branch_id];
     var branchModules = branch ? branch.modules : [];
-    var progress = loadProgress();
+    var progress = await loadProgress();
 
     if (!isModuleUnlocked(lesson.branch_id, lesson.module_id, branchModules, progress)) {
       stateBox.classList.remove("skeleton");
@@ -735,8 +803,8 @@
       completeBtn.disabled = true;
     }
 
-    completeBtn.addEventListener("click", function () {
-      markModuleCompleted(lesson.branch_id, lesson.module_id, branchModules);
+    completeBtn.addEventListener("click", async function () {
+      await markModuleCompleted(lesson.branch_id, lesson.module_id, branchModules);
       completeBtn.textContent = "Пройдено ✓";
       completeBtn.disabled = true;
       setTimeout(function () {
@@ -786,14 +854,14 @@
     try {
       var modules = await fetchModules(config);
       var branches = groupByBranches(modules);
-      var progress = loadProgress();
+      var progress = await loadProgress();
 
       BRANCH_ORDER.forEach(function (branchId) {
         if (branches[branchId] && isBranchCompleted(branchId, branches[branchId].modules, progress)) {
           progress.completedBranches[branchId] = true;
         }
       });
-      saveProgress(progress);
+      await saveProgress(progress);
 
       if (page === "dashboard") {
         renderDashboard(modules, branches, progress, config);
@@ -805,7 +873,7 @@
       }
 
       if (page === "lesson") {
-        renderLesson(modules, branches);
+        await renderLesson(modules, branches);
       }
     } catch (error) {
       if (page === "dashboard") {
