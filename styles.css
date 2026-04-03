@@ -1214,3 +1214,11 @@ a { color: inherit; }
   background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 82%, black));
   color: #032315;
 }
+
+.intro-cta-text{
+margin: 18px 0 10px;
+text-align: center;
+font-size: 15px;
+line-height: 1.5;
+color: rgba(240,255,247,0.8);
+}
