@@ -1118,6 +1118,7 @@ a { color: inherit; }
   right: 18px;
   bottom: 28px;
   z-index: 1;
+  text-align: center;
 }
 
 .intro-pretitle {
@@ -1133,6 +1134,7 @@ a { color: inherit; }
   font-size: clamp(30px, 8vw, 40px);
   line-height: 1.05;
   color: #fff;
+  text-align: center;
 }
 
 .intro-card {
