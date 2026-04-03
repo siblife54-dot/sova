@@ -1216,9 +1216,21 @@ a { color: inherit; }
 }
 
 .intro-cta-text{
-margin: 18px 0 10px;
+margin: 26px 0 14px;
+
 text-align: center;
-font-size: 15px;
-line-height: 1.5;
-color: rgba(240,255,247,0.8);
+
+font-size: 18px;
+line-height: 1.45;
+font-weight: 600;
+
+color: #f2fff8;
+
+max-width: 360px;
+margin-left: auto;
+margin-right: auto;
+
+text-shadow:
+0 0 10px rgba(var(--accent-rgb),0.25),
+0 2px 8px rgba(0,0,0,0.6);
 }
