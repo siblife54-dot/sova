@@ -663,7 +663,7 @@
     var topBackLink = document.getElementById("lessonBackLink");
     var lessonCabinetLink = document.getElementById("lessonCabinetLink");
     topBackLink.href = backUrl;
-    lessonCabinetLink.href = "./index.html";
+    lessonCabinetLink.href = "./cabinet.html";
 
     stateBox.hidden = true;
     main.hidden = false;

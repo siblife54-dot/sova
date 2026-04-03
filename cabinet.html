@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Кабинет курса</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body data-page="dashboard" class="dashboard-page">
+  <div class="header-brand" id="brandName" hidden>Бренд</div>
+  <section id="dashboardHero" class="dashboard-hero" aria-live="polite"></section>
+  <div class="dashboard-main-layout">
+    <section id="userCard" class="card user-card-compact" aria-live="polite"></section>
+    <section id="dashboardProgress" class="card dashboard-progress-compact" aria-live="polite"></section>
+
+    <section id="branchesContainer" class="branches-grid" aria-live="polite"></section>
+    <div id="stateBox" class="state" hidden></div>
+  </div>
+
+  <script src="./config.js"></script>
+  <script src="./csv.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
