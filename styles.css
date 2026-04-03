@@ -1109,7 +1109,8 @@ a { color: inherit; }
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.06) 12%, rgba(0, 0, 0, 0.72) 75%, rgba(3, 24, 18, 1) 100%);
+    radial-gradient(95% 52% at 50% 106%, rgba(var(--accent-rgb), 0.34) 0%, rgba(var(--accent-rgb), 0.12) 46%, transparent 78%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 10%, rgba(0, 0, 0, 0.7) 72%, rgba(3, 24, 18, 1) 100%);
 }
 
 .intro-hero-overlay {
@@ -1119,6 +1120,7 @@ a { color: inherit; }
   bottom: 28px;
   z-index: 1;
   text-align: center;
+  text-shadow: 0 6px 24px rgba(var(--accent-rgb), 0.2);
 }
 
 .intro-pretitle {
@@ -1138,26 +1140,69 @@ a { color: inherit; }
 }
 
 .intro-card {
-  padding: 16px;
+  padding: 18px 16px 16px;
+  background:
+    linear-gradient(180deg, rgba(6, 31, 24, 0.98) 0%, rgba(6, 34, 27, 0.94) 100%);
+  border-color: rgba(var(--accent-rgb), 0.3);
+  box-shadow:
+    0 16px 28px rgba(0, 0, 0, 0.42),
+    0 0 0 1px rgba(var(--accent-rgb), 0.08) inset;
 }
 
-.intro-description {
+.intro-lead {
   margin: 0;
-  color: #e8fff2;
-  line-height: 1.55;
+  color: #f2fff8;
+  font-size: 17px;
+  line-height: 1.62;
+  letter-spacing: -0.006em;
 }
 
 .intro-section-title {
-  margin: 14px 0 10px;
-  font-size: 17px;
+  margin: 16px 0 12px;
+  font-size: 20px;
+  line-height: 1.25;
+  font-weight: 800;
+  color: color-mix(in srgb, var(--accent) 68%, white);
 }
 
 .intro-list {
   margin: 0;
-  padding-left: 18px;
+  padding: 0;
+  list-style: none;
   display: grid;
-  gap: 8px;
-  color: var(--muted);
+  gap: 10px;
+  color: rgba(238, 255, 248, 0.9);
+}
+
+.intro-list li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.intro-list li::before {
+  content: "";
+  position: absolute;
+  top: 0.7em;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 86%, white);
+  box-shadow: 0 0 9px rgba(var(--accent-rgb), 0.45);
+  transform: translateY(-50%);
+}
+
+.intro-highlight {
+  margin: 16px 0 0;
+  padding: 12px 13px;
+  border-radius: 12px;
+  border: 1px solid rgba(var(--accent-rgb), 0.45);
+  background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.14), rgba(var(--accent-rgb), 0.07));
+  color: #effff7;
+  font-weight: 600;
+  line-height: 1.5;
 }
 
 .intro-button {
