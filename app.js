@@ -16,9 +16,6 @@
     aggression: "Агрессия"
   };
 
-
-  var DASHBOARD_SESSION_KEY = "sova_dashboard_opened_v1";
-
   function getConfig() {
     return window.APP_CONFIG || {};
   }
@@ -554,75 +551,6 @@
     }).join("");
   }
 
-
-  function getDashboardSessionState() {
-    try {
-      return sessionStorage.getItem(DASHBOARD_SESSION_KEY) === "1";
-    } catch (e) {
-      return false;
-    }
-  }
-
-  function setDashboardSessionState(opened) {
-    try {
-      if (opened) {
-        sessionStorage.setItem(DASHBOARD_SESSION_KEY, "1");
-      } else {
-        sessionStorage.removeItem(DASHBOARD_SESSION_KEY);
-      }
-    } catch (e) {
-      // ignore storage errors
-    }
-  }
-
-  function setSinglePageScreen(isDashboardVisible) {
-    var welcome = document.getElementById("welcomeScreen");
-    var dashboard = document.getElementById("dashboardScreen");
-    if (!welcome || !dashboard) return;
-
-    welcome.hidden = Boolean(isDashboardVisible);
-    dashboard.hidden = !isDashboardVisible;
-
-    document.body.classList.toggle("dashboard-page", Boolean(isDashboardVisible));
-    document.body.classList.toggle("welcome-page", !isDashboardVisible);
-  }
-
-  function initSinglePageFlow(modules, branches, progress, config) {
-    var welcome = document.getElementById("welcomeScreen");
-    var dashboard = document.getElementById("dashboardScreen");
-    if (!welcome || !dashboard) return false;
-
-    var openBtn = document.getElementById("openDashboardBtn");
-    var isDashboardOpen = getDashboardSessionState();
-    var isDashboardRendered = false;
-
-    function openDashboard() {
-      isDashboardOpen = true;
-      setSinglePageScreen(true);
-      setDashboardSessionState(true);
-
-      if (!isDashboardRendered) {
-        renderDashboard(modules, branches, progress, config);
-        isDashboardRendered = true;
-      }
-    }
-
-    if (openBtn) {
-      openBtn.addEventListener("click", function (event) {
-        event.preventDefault();
-        openDashboard();
-      });
-    }
-
-    if (isDashboardOpen) {
-      openDashboard();
-    } else {
-      setSinglePageScreen(false);
-    }
-
-    return true;
-  }
-
   function extractYouTubeId(url) {
     if (!url) return null;
     var re = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?/]+)/;
@@ -921,11 +849,7 @@
     initTelegramViewport();
 
     var page = document.body.getAttribute("data-page");
-    var hasSinglePageDashboard = Boolean(document.getElementById("welcomeScreen") && document.getElementById("dashboardScreen"));
-
-    if (page === "dashboard" || (hasSinglePageDashboard && getDashboardSessionState())) {
-      showDashboardLoading();
-    }
+    if (page === "dashboard") showDashboardLoading();
 
     try {
       var modules = await fetchModules(config);
@@ -939,9 +863,7 @@
       });
       await saveProgress(progress);
 
-      if (hasSinglePageDashboard) {
-        initSinglePageFlow(modules, branches, progress, config);
-      } else if (page === "dashboard") {
+      if (page === "dashboard") {
         renderDashboard(modules, branches, progress, config);
       }
 
