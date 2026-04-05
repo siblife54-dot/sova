@@ -1082,12 +1082,6 @@ a { color: inherit; }
   margin-bottom: 0;
 }
 
-
-.welcome-screen,
-.dashboard-screen {
-  width: 100%;
-}
-
 /* ===== Welcome page ===== */
 .welcome-page {
   max-width: 460px;
