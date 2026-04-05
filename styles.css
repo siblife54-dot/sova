@@ -106,7 +106,11 @@ a { color: inherit; }
   height: 100%;
   width: 0;
   border-radius: 999px;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 85%, white), var(--accent));
+  background: linear-gradient(
+    90deg,
+    #10b981,
+    #34d399
+  );
   box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 55%, transparent);
   transition: width .35s ease;
 }
@@ -620,6 +624,17 @@ a { color: inherit; }
 /* ===== SOVA branches ===== */
 .dashboard-page {
   padding: 0 12px calc(16px + env(safe-area-inset-bottom));
+  background: radial-gradient(circle at top, #0f3d2e 0%, #071a14 60%, #04120d 100%);
+}
+
+.dashboard-page .card,
+.dashboard-page .branch-card {
+  background: linear-gradient(
+    180deg,
+    rgba(29,209,161,0.08),
+    rgba(29,209,161,0.02)
+  );
+  border: 1px solid rgba(29,209,161,0.25);
 }
 
 .dashboard-hero {
@@ -851,7 +866,11 @@ a { color: inherit; }
 .dashboard-progress-fill {
   height: 100%;
   width: 0;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 80%, white), var(--accent));
+  background: linear-gradient(
+    90deg,
+    #10b981,
+    #34d399
+  );
   border-radius: inherit;
   transition: width .35s ease;
 }
@@ -865,9 +884,13 @@ a { color: inherit; }
 
 .branch-card {
   border-radius: var(--radius-md);
-  border: 1px solid color-mix(in srgb, var(--branch-color, var(--accent)) 40%, var(--border));
+  border: 1px solid rgba(29,209,161,0.25);
   overflow: hidden;
-  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+  background: linear-gradient(
+    180deg,
+    rgba(29,209,161,0.08),
+    rgba(29,209,161,0.02)
+  );
 
   aspect-ratio: 3 / 4;
 }
@@ -881,7 +904,8 @@ a { color: inherit; }
 }
 
 .branch-card.locked {
-  opacity: 0.62;
+  opacity: 0.65;
+  filter: saturate(0.85);
 }
 
 .branch-card.locked .branch-card-link {
@@ -943,8 +967,8 @@ a { color: inherit; }
 }
 
 .status.open {
-  background: color-mix(in srgb, var(--branch-color, var(--accent)) 24%, transparent);
-  color: #f3f7ff;
+  background: rgba(16,185,129,0.18);
+  color: #34d399;
 }
 
 .branch-page .progress-fill,
