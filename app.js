@@ -294,9 +294,26 @@
   }
 
   function getTelegramUser() {
-    var tg = globalThis.Telegram && globalThis.Telegram.WebApp;
-    if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user) return null;
-    return tg.initDataUnsafe.user;
+    var tg = window.Telegram && window.Telegram.WebApp;
+    var liveUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+
+    if (liveUser) {
+      try {
+        sessionStorage.setItem("tg_user_profile_v1", JSON.stringify(liveUser));
+        localStorage.setItem("tg_user_profile_v1", JSON.stringify(liveUser));
+      } catch (e) {}
+      return liveUser;
+    }
+
+    try {
+      var cached =
+        sessionStorage.getItem("tg_user_profile_v1") ||
+        localStorage.getItem("tg_user_profile_v1");
+
+      return cached ? JSON.parse(cached) : null;
+    } catch (e) {
+      return null;
+    }
   }
 
   function getUserFallbackLetter(firstName, lastName, username) {
@@ -847,6 +864,20 @@
     var config = getConfig();
     applyTheme(config);
     initTelegramViewport();
+
+    var tg = window.Telegram && window.Telegram.WebApp;
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+      try {
+        sessionStorage.setItem(
+          "tg_user_profile_v1",
+          JSON.stringify(tg.initDataUnsafe.user)
+        );
+        localStorage.setItem(
+          "tg_user_profile_v1",
+          JSON.stringify(tg.initDataUnsafe.user)
+        );
+      } catch (e) {}
+    }
 
     var page = document.body.getAttribute("data-page");
     if (page === "dashboard") showDashboardLoading();
