@@ -30,6 +30,27 @@ body {
   padding: 18px 14px 30px;
 }
 
+.dashboard-page {
+  background:
+    radial-gradient(
+      900px 500px at 50% -10%,
+      rgba(46, 204, 113, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      600px 400px at 80% 20%,
+      rgba(46, 204, 113, 0.12),
+      transparent 65%
+    ),
+    linear-gradient(
+      180deg,
+      #061712 0%,
+      #0b2b22 45%,
+      #061712 100%
+    );
+  min-height: 100vh;
+}
+
 a { color: inherit; }
 
 .header-brand {
