@@ -624,17 +624,22 @@ a { color: inherit; }
 /* ===== SOVA branches ===== */
 .dashboard-page {
   padding: 0 12px calc(16px + env(safe-area-inset-bottom));
-  background: radial-gradient(circle at top, #0f3d2e 0%, #071a14 60%, #04120d 100%);
+  background:
+    radial-gradient(900px 500px at 20% -10%, rgba(46,204,113,0.18), transparent 60%),
+    linear-gradient(180deg,#071812,#0b2b22);
+  color: #e9f7f1;
 }
 
 .dashboard-page .card,
 .dashboard-page .branch-card {
-  background: linear-gradient(
-    180deg,
-    rgba(29,209,161,0.08),
-    rgba(29,209,161,0.02)
-  );
-  border: 1px solid rgba(29,209,161,0.25);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(46,204,113,0.18);
+}
+
+.dashboard-page .user-sub,
+.dashboard-page .dashboard-progress-compact p,
+.dashboard-page .branch-card-body p {
+  color: rgba(255,255,255,0.65);
 }
 
 .dashboard-hero {
@@ -778,9 +783,15 @@ a { color: inherit; }
     0 0 48px rgba(var(--accent-rgb), 0.24);
 }
 
-.user-card-compact {
+.dashboard-page .user-card-compact {
   padding: 10px;
   min-height: 68px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(46,204,113,0.18);
+  box-shadow:
+    0 10px 35px rgba(0,0,0,0.55),
+    0 0 20px rgba(46,204,113,0.15) inset;
 }
 
 .user-card {
@@ -828,8 +839,14 @@ a { color: inherit; }
   font-size: 12px;
 }
 
-.dashboard-progress-compact {
+.dashboard-page .dashboard-progress-compact {
   padding: 10px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(46,204,113,0.18);
+  box-shadow:
+    0 10px 35px rgba(0,0,0,0.55),
+    0 0 20px rgba(46,204,113,0.15) inset;
 }
 
 .dashboard-progress-head {
@@ -863,44 +880,52 @@ a { color: inherit; }
   overflow: hidden;
 }
 
-.dashboard-progress-fill {
+.dashboard-page .dashboard-progress-fill {
   height: 100%;
   width: 0;
   background: linear-gradient(
     90deg,
-    #10b981,
-    #34d399
+    #27ae60,
+    #2ecc71
   );
+  box-shadow: 0 0 12px rgba(46,204,113,0.7);
   border-radius: inherit;
   transition: width .35s ease;
 }
 
-.branches-grid {
+.dashboard-page .branches-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-auto-rows: 1fr;
-  gap: 8px;
+  gap: 12px;
 }
 
-.branch-card {
+.dashboard-page .branch-card {
   border-radius: var(--radius-md);
-  border: 1px solid rgba(29,209,161,0.25);
+  border: 1.5px solid color-mix(in srgb, var(--branch-color) 70%, transparent);
   overflow: hidden;
-  background: linear-gradient(
-    180deg,
-    rgba(29,209,161,0.08),
-    rgba(29,209,161,0.02)
-  );
+  background: rgba(255,255,255,0.04);
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.45),
+    0 0 0 1px color-mix(in srgb, var(--branch-color) 25%, transparent) inset,
+    0 0 18px color-mix(in srgb, var(--branch-color) 18%, transparent);
 
   aspect-ratio: 3 / 4;
 }
 
-.branch-card-link {
+.dashboard-page .branch-card-link {
   text-decoration: none;
   display: block;
   height: 100%;
   position: relative;
   isolation: isolate;
+}
+
+.dashboard-page .branch-card-link:active {
+  transform: scale(0.985);
+  transition:
+    transform 120ms ease,
+    box-shadow 180ms ease;
 }
 
 .branch-card.locked {
@@ -933,20 +958,28 @@ a { color: inherit; }
   display: block;
 }
 
-.branch-card-body {
+.dashboard-page .branch-card-body {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 2;
   padding: 7px;
-  background: linear-gradient(180deg, rgba(6, 14, 26, 0) 0%, rgba(6, 14, 26, 0.68) 36%, rgba(6, 14, 26, 0.82) 100%);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(0,0,0,0) 0%,
+      rgba(0,0,0,0.35) 40%,
+      rgba(0,0,0,0.75) 100%
+    );
 }
 
-.branch-card-body h3 {
+.dashboard-page .branch-card-body h3 {
   margin: 0;
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .branch-card-body p {
@@ -966,9 +999,14 @@ a { color: inherit; }
   justify-content: flex-start;
 }
 
-.status.open {
-  background: rgba(16,185,129,0.18);
-  color: #34d399;
+.dashboard-page .status.open {
+  background: rgba(46,204,113,0.18);
+  color: #baf7d8;
+}
+
+.dashboard-page .status.locked {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.7);
 }
 
 .branch-page .progress-fill,
