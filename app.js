@@ -20,11 +20,47 @@
     return window.APP_CONFIG || {};
   }
 
+  function hexToRgbTuple(color) {
+    var value = String(color || "").trim();
+    if (!value) return null;
+
+    var shortHex = value.match(/^#([a-f0-9]{3})$/i);
+    if (shortHex) {
+      var r = parseInt(shortHex[1][0] + shortHex[1][0], 16);
+      var g = parseInt(shortHex[1][1] + shortHex[1][1], 16);
+      var b = parseInt(shortHex[1][2] + shortHex[1][2], 16);
+      return [r, g, b];
+    }
+
+    var fullHex = value.match(/^#([a-f0-9]{6})$/i);
+    if (fullHex) {
+      var raw = fullHex[1];
+      return [
+        parseInt(raw.slice(0, 2), 16),
+        parseInt(raw.slice(2, 4), 16),
+        parseInt(raw.slice(4, 6), 16)
+      ];
+    }
+
+    return null;
+  }
+
+  function toAccentRgbValue(color, fallback) {
+    var tuple = hexToRgbTuple(color);
+    if (!tuple) return fallback;
+    return tuple.join(", ");
+  }
+
   function applyTheme(config) {
     var root = document.documentElement;
-    root.style.setProperty("--accent", config.accentColor || "#8B5CF6");
-    root.style.setProperty("--bg", config.backgroundColor || "#0E1B2B");
-    root.style.setProperty("--card", config.cardColor || "#12243a");
+    var accentColor = config.accentColor || "#8B5CF6";
+    var backgroundColor = config.backgroundColor || "#0E1B2B";
+    var cardColor = config.cardColor || "#12243a";
+
+    root.style.setProperty("--accent", accentColor);
+    root.style.setProperty("--accent-rgb", toAccentRgbValue(accentColor, "139, 92, 246"));
+    root.style.setProperty("--bg", backgroundColor);
+    root.style.setProperty("--card", cardColor);
 
     var brand = document.getElementById("brandName");
     if (brand) brand.textContent = config.brandName || "Кабинет курса";

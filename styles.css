@@ -1,3 +1,4 @@
+/* ===== Base theme tokens ===== */
 :root {
   --bg: #031812;
   --card: #041f18;
@@ -16,11 +17,11 @@
 
 html,
 body {
-margin: 0;
+  margin: 0;
   padding: 0;
   min-height: 100%;
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: radial-gradient(950px 520px at 20% -15%, rgba(var(--accent-rgb), 0.22), transparent 55%), var(--bg);
+  background: var(--bg);
   color: var(--text);
 }
 
@@ -30,26 +31,7 @@ body {
   padding: 18px 14px 30px;
 }
 
-.dashboard-page {
-  background:
-    radial-gradient(
-      900px 500px at 50% -10%,
-      rgba(46, 204, 113, 0.18),
-      transparent 60%
-    ),
-    radial-gradient(
-      600px 400px at 80% 20%,
-      rgba(46, 204, 113, 0.12),
-      transparent 65%
-    ),
-    linear-gradient(
-      180deg,
-      #061712 0%,
-      #0b2b22 45%,
-      #061712 100%
-    );
-  min-height: 100vh;
-}
+/* ===== Shared components ===== */
 
 a { color: inherit; }
 
@@ -293,6 +275,7 @@ a { color: inherit; }
 
 @keyframes shimmer { to { transform: translateX(420px); } }
 
+/* ===== Lesson page ===== */
 .lesson-page h1 {
   margin: 14px 0 8px;
   font-size: 24px;
@@ -604,12 +587,6 @@ a { color: inherit; }
   margin: 14px 0 18px;
 }
 
-}
-.lesson-media {
-  width: 100%;
-  margin: 14px 0 18px;
-}
-
 .lesson-media__frame {
   position: relative;
   width: 100%;
@@ -642,12 +619,13 @@ a { color: inherit; }
   background: transparent !important;
 }
 
-/* ===== SOVA branches ===== */
+/* ===== Dashboard page ===== */
 .dashboard-page {
   padding: 0 12px calc(16px + env(safe-area-inset-bottom));
+  min-height: 100vh;
   background:
-    radial-gradient(900px 500px at 20% -10%, rgba(46,204,113,0.18), transparent 60%),
-    linear-gradient(180deg,#071812,#0b2b22);
+    radial-gradient(880px 460px at 20% -10%, rgba(var(--accent-rgb), 0.16), transparent 60%),
+    linear-gradient(180deg, #071812 0%, #0b2b22 55%, #081d17 100%);
   color: #e9f7f1;
 }
 
@@ -726,21 +704,8 @@ a { color: inherit; }
   pointer-events: none;
   z-index: 1;
   background:
-    radial-gradient(
-      circle at 50% 45%,
-      rgba(var(--accent-rgb), 0.22) 0%,
-      rgba(var(--accent-rgb), 0.10) 28%,
-      rgba(0, 0, 0, 0) 62%
-    ),
-    linear-gradient(
-      to bottom,
-      rgba(3, 24, 18, 0.00) 0%,
-      rgba(3, 24, 18, 0.14) 38%,
-      rgba(3, 24, 18, 0.48) 62%,
-      rgba(3, 24, 18, 0.84) 82%,
-      rgba(3, 24, 18, 0.98) 94%,
-      rgba(3, 24, 18, 1) 100%
-    );
+    radial-gradient(circle at 50% 45%, rgba(var(--accent-rgb), 0.14) 0%, rgba(0, 0, 0, 0) 58%),
+    linear-gradient(to bottom, rgba(3, 24, 18, 0) 0%, rgba(3, 24, 18, 0.55) 72%, rgba(3, 24, 18, 0.96) 100%);
 }
 
 
@@ -794,25 +759,19 @@ a { color: inherit; }
   background-clip: text;
   -webkit-text-fill-color: transparent;
   position: relative;
-  filter: drop-shadow(0 14px 34px rgba(1, 12, 9, 0.58));
+  filter: drop-shadow(0 10px 20px rgba(1, 12, 9, 0.4));
   text-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.62),
-    0 2px 2px rgba(214, 255, 228, 0.28),
-    0 12px 32px rgba(1, 10, 7, 0.72),
-    0 28px 68px rgba(0, 8, 5, 0.58),
-    0 0 22px rgba(var(--accent-rgb), 0.42),
-    0 0 48px rgba(var(--accent-rgb), 0.24);
+    0 2px 8px rgba(1, 10, 7, 0.5),
+    0 0 16px rgba(var(--accent-rgb), 0.2);
 }
 
 .dashboard-page .user-card-compact {
   padding: 10px;
   min-height: 68px;
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(18px);
+  background: rgba(255,255,255,0.045);
+  backdrop-filter: blur(14px);
   border: 1px solid rgba(46,204,113,0.18);
-  box-shadow:
-    0 10px 35px rgba(0,0,0,0.55),
-    0 0 20px rgba(46,204,113,0.15) inset;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.38);
 }
 
 .user-card {
@@ -862,12 +821,10 @@ a { color: inherit; }
 
 .dashboard-page .dashboard-progress-compact {
   padding: 10px;
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(18px);
+  background: rgba(255,255,255,0.045);
+  backdrop-filter: blur(14px);
   border: 1px solid rgba(46,204,113,0.18);
-  box-shadow:
-    0 10px 35px rgba(0,0,0,0.55),
-    0 0 20px rgba(46,204,113,0.15) inset;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.38);
 }
 
 .dashboard-progress-head {
@@ -927,10 +884,8 @@ a { color: inherit; }
   overflow: hidden;
   background: rgba(255,255,255,0.04);
   box-shadow:
-    0 10px 30px rgba(0,0,0,0.45),
-    0 0 0 1px color-mix(in srgb, var(--branch-color) 25%, transparent) inset,
-    0 0 18px color-mix(in srgb, var(--branch-color) 18%, transparent);
-
+    0 8px 22px rgba(0,0,0,0.34),
+    0 0 0 1px color-mix(in srgb, var(--branch-color) 22%, transparent) inset;
   aspect-ratio: 3 / 4;
 }
 
@@ -1030,6 +985,7 @@ a { color: inherit; }
   color: rgba(255,255,255,0.7);
 }
 
+/* ===== Branch page ===== */
 .branch-page .progress-fill,
 .module-card .btn,
 .module-card {
@@ -1168,6 +1124,7 @@ a { color: inherit; }
 /* ===== Welcome page ===== */
 .welcome-page {
   max-width: 460px;
+  background: radial-gradient(950px 520px at 20% -15%, rgba(var(--accent-rgb), 0.22), transparent 55%), var(--bg);
   padding: 0 12px calc(20px + env(safe-area-inset-bottom));
 }
 
